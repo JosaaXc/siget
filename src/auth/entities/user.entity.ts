@@ -21,14 +21,9 @@ export class User {
     @Column('text')
     fullName: string;
 
-    @Column('bool', {
-        default: true
-    })
-    isActive: boolean;
-
     @Column('text', {
         array: true,
-        default: ['user']
+        default: ['USER_ROLE']
     })
     roles: string[];
 
@@ -36,10 +31,13 @@ export class User {
     // Don't forget to import the entity and add the relationship on the other entity
 
     // @OneToMany(
-    //     () => Product,
-    //     product => product.user
+    //     () => Subject,
+    //     subject => subject.user,
+    //     {
+    //         cascade: true
+    //     }
     // )
-    // product: Product;
+    // subject: Subject[];
 
     @BeforeInsert()
     checkFieldBeforeInsert(){

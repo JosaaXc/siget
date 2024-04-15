@@ -3,7 +3,7 @@
 </p>
 
 # Description 
-This project brings together everything needed to work with Postgres using type orm and at the same time an authentication with JWT and roles loaded.
+Backend for the FCBIyT degree process management system.
 
 # Used Packages
 

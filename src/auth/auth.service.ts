@@ -7,6 +7,7 @@ import * as bcrypt from 'bcrypt';
 import { CreateUserDto, LoginUserDto } from './dto';
 import { JwtPayload } from './interfaces/jwt-payload.interface';
 import { JwtService } from '@nestjs/jwt';
+import { UpdateUserDto } from './dto/update-user.dto';
 
 @Injectable()
 export class AuthService {
@@ -65,6 +66,33 @@ export class AuthService {
     const token = this.jwtService.sign(payload);
     return token;
 
+  }
+
+  async getUsers() {
+    return await this.userRepository.find();
+  }
+
+  async getUser(id: string) {
+    return await this.userRepository.findOne({ where: { id } });
+  }
+
+  async updateUser(id: string, updateUserDto: UpdateUserDto) {
+    try {
+      await this.userRepository.update(id, updateUserDto);
+      const updatedUser = await this.userRepository.findOne({ where: { id } });
+      return updatedUser;
+    } catch (error) {
+      this.handleDBError(error);
+    }
+  }
+
+  async deleteUser(id: string) {
+    try {
+      await this.userRepository.delete(id);
+      return { message: 'User deleted' };
+    } catch (error) {
+      this.handleDBError(error);
+    }
   }
 
   private handleDBError(error: any): never {

@@ -7,6 +7,7 @@ import { Auth, GetUser, RawHeaders } from './decorators';
 import { UserRoleGuard } from './guards/user-role/user-role.guard';
 import { RoleProtected } from './decorators/role-protected.decorator';
 import { ValidRoles } from './interfaces';
+import { UpdateUserDto } from './dto/update-user.dto';
 
 
 @Controller('auth')
@@ -23,17 +24,35 @@ export class AuthController {
     return this.authService.login(loginUserDto);
   }
 
-  @Get('example')
-  @Auth(ValidRoles.admin) // use this to protect the route
-  // @Auth() // use this to protect the route but without any role
-  privateRoute3(
-    @GetUser() user: User
-  ){
-    return {
-      message: 'This is a private route',
-      user
-    }
+  // @Get('example')
+  // @Auth(ValidRoles.admin) // use this to protect the route
+  // // @Auth() // use this to protect the route but without any role
+  // privateRoute3(
+  //   @GetUser() user: User
+  // ){
+  //   return {
+  //     message: 'This is a private route',
+  //     user
+  //   }
+  // }
+
+  @Get('users')
+  getUsers() {
+    return this.authService.getUsers();
+  }
+  
+  @Get('users/:id')
+  getUser(@Param('id') id: string) {
+    return this.authService.getUser(id);
+  }
+ 
+  @Patch('users/:id')
+  updateUser(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
+    return this.authService.updateUser(id, updateUserDto);
   }
 
- 
+  @Delete('users/:id')
+  deleteUser(@Param('id') id: string) {
+    return this.authService.deleteUser(id);
+  }
 }
