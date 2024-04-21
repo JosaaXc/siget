@@ -8,6 +8,8 @@ import { CreateUserDto, LoginUserDto } from './dto';
 import { JwtPayload } from './interfaces/jwt-payload.interface';
 import { JwtService } from '@nestjs/jwt';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { handleDBError } from 'src/common/errors/handleDBError.errors';
+import { DegreeProgram } from 'src/degree-programs/entities/degree-program.entity';
 
 @Injectable()
 export class AuthService {
@@ -15,6 +17,8 @@ export class AuthService {
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
+    @InjectRepository(DegreeProgram)
+    private readonly degreeProgramRepository: Repository<DegreeProgram>,
     private readonly jwtService: JwtService
   ){}
 
@@ -36,7 +40,7 @@ export class AuthService {
       }
 
     } catch (error) {
-      this.handleDBError(error);
+      handleDBError(error);
     }
   }
 
@@ -82,26 +86,29 @@ export class AuthService {
       const updatedUser = await this.userRepository.findOne({ where: { id } });
       return updatedUser;
     } catch (error) {
-      this.handleDBError(error);
+      handleDBError(error);
     }
   }
 
   async deleteUser(id: string) {
+    
+    const user = await this.userRepository.findOne({ where: { id: id }, relations: ['degreePrograms'] });
+    if (!user) 
+      throw new BadRequestException('User not found');
+
     try {
+      for (const degreeProgram of user.degreePrograms) {
+        await this.degreeProgramRepository.createQueryBuilder()
+          .relation(DegreeProgram, 'users')
+          .of(degreeProgram.id)
+          .remove(id);
+      }
+    
       await this.userRepository.delete(id);
-      return { message: 'User deleted' };
+    
+      return { message: 'User deleted successfully' };
     } catch (error) {
-      this.handleDBError(error);
+      handleDBError(error);
     }
   }
-
-  private handleDBError(error: any): never {
-    if( error.code === '23505') {
-      throw new BadRequestException( error.detail )
-    }
-
-    console.log(error);
-    throw new InternalServerErrorException('Something went wrong');
-  }
-  
 }

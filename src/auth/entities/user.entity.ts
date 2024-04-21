@@ -1,5 +1,6 @@
 import { IsEmail } from "class-validator";
-import { Column, Entity, PrimaryGeneratedColumn, BeforeInsert, BeforeUpdate, OneToMany } from 'typeorm';
+import { DegreeProgram } from "src/degree-programs/entities/degree-program.entity";
+import { Column, Entity, PrimaryGeneratedColumn, BeforeInsert, BeforeUpdate, OneToMany, ManyToMany, JoinTable } from 'typeorm';
 
 @Entity('users')
 export class User {
@@ -27,17 +28,11 @@ export class User {
     })
     roles: string[];
 
-    // In case you need to add a relationship with another entity
-    // Don't forget to import the entity and add the relationship on the other entity
-
-    // @OneToMany(
-    //     () => Subject,
-    //     subject => subject.user,
-    //     {
-    //         cascade: true
-    //     }
-    // )
-    // subject: Subject[];
+    @ManyToMany(
+        () => DegreeProgram, 
+        degreeProgram => degreeProgram.users,
+    )
+    degreePrograms: DegreeProgram[];
 
     @BeforeInsert()
     checkFieldBeforeInsert(){
