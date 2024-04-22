@@ -4,6 +4,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { CommonModule } from './common/common.module';
 import { AuthModule } from './auth/auth.module';
 import { DegreeProgramsModule } from './degree-programs/degree-programs.module';
+import { GraduationOptionsModule } from './graduation-options/graduation-options.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { DegreeProgramsModule } from './degree-programs/degree-programs.module';
     CommonModule,
     AuthModule,
     DegreeProgramsModule,
+    GraduationOptionsModule,
   ],
 })
 export class AppModule {}
