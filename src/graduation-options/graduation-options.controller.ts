@@ -1,9 +1,6 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe } from '@nestjs/common';
 import { GraduationOptionsService } from './graduation-options.service';
 import { CreateGraduationOptionDto } from './dto/create-graduation-option.dto';
-import { UpdateGraduationOptionDto } from './dto/update-graduation-option.dto';
-import { Auth, GetUser } from 'src/auth/decorators';
-import { ValidRoles } from 'src/auth/interfaces';
 
 @Controller('graduation-options')
 //TODO: Add Auth decorator to the controller
@@ -24,17 +21,16 @@ export class GraduationOptionsController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.graduationOptionsService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateGraduationOptionDto: UpdateGraduationOptionDto) {
-    return this.graduationOptionsService.update(+id, updateGraduationOptionDto);
+  findOne(
+    @Param('id', ParseUUIDPipe ) id: string
+  ) {
+    return this.graduationOptionsService.findOne(id);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.graduationOptionsService.remove(+id);
+  remove(
+    @Param('id', ParseUUIDPipe ) id: string
+  ) {
+    return this.graduationOptionsService.remove(id);
   }
 }

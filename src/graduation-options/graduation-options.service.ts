@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { CreateGraduationOptionDto } from './dto/create-graduation-option.dto';
-import { UpdateGraduationOptionDto } from './dto/update-graduation-option.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { GraduationOption } from './entities/graduation-option.entity';
 import { Repository } from 'typeorm';
@@ -23,18 +22,23 @@ export class GraduationOptionsService {
   }
 
   findAll() {
-    return `This action returns all graduationOptions`;
+    return this.graduationOptionRepository.find();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} graduationOption`;
+  async findOne(id: string) {
+    try {
+      return await this.graduationOptionRepository.findOneOrFail({ where: { id } });
+    } catch (error) {
+      handleDBError(error);
+    }
   }
 
-  update(id: number, updateGraduationOptionDto: UpdateGraduationOptionDto) {
-    return `This action updates a #${id} graduationOption`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} graduationOption`;
+  async remove(id: string) {
+    try {
+      await this.graduationOptionRepository.delete(id);
+      return { mesage: 'Graduation option deleted' };
+    } catch (error) {
+      handleDBError(error)
+    }
   }
 }
