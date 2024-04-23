@@ -19,9 +19,6 @@ export class User {
     })
     password: string;
 
-    @Column('text')
-    fullName: string;
-
     @Column('text', {
         array: true,
         default: ['STUDENT_ROLE']
