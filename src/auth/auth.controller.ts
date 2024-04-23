@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Req, SetMetadata } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Req, SetMetadata, Query } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CreateUserDto, LoginUserDto } from './dto';
 import { AuthGuard } from '@nestjs/passport';
@@ -8,6 +8,7 @@ import { UserRoleGuard } from './guards/user-role/user-role.guard';
 import { RoleProtected } from './decorators/role-protected.decorator';
 import { ValidRoles } from './interfaces';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { PaginationDto } from 'src/common/dtos/pagination.dto';
 
 
 @Controller('auth')
@@ -37,8 +38,10 @@ export class AuthController {
   // }
 
   @Get('users')
-  getUsers() {
-    return this.authService.getUsers();
+  getUsers(
+    @Query() paginationDto: PaginationDto
+  ) {
+    return this.authService.getUsers(paginationDto);
   }
   
   @Get('users/:id')

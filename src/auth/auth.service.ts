@@ -10,6 +10,7 @@ import { JwtService } from '@nestjs/jwt';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { handleDBError } from 'src/common/errors/handleDBError.errors';
 import { DegreeProgram } from 'src/degree-programs/entities/degree-program.entity';
+import { PaginationDto } from '../common/dtos/pagination.dto';
 
 @Injectable()
 export class AuthService {
@@ -72,8 +73,12 @@ export class AuthService {
 
   }
 
-  async getUsers() {
-    return await this.userRepository.find();
+  async getUsers(paginationDto: PaginationDto) {
+    const { limit = 15 , offset = 0 } = paginationDto;
+    return await this.userRepository.find({ 
+      skip: offset, 
+      take: limit 
+    });
   }
 
   async getUser(id: string) {
