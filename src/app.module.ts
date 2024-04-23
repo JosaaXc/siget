@@ -5,6 +5,7 @@ import { CommonModule } from './common/common.module';
 import { AuthModule } from './auth/auth.module';
 import { DegreeProgramsModule } from './degree-programs/degree-programs.module';
 import { GraduationOptionsModule } from './graduation-options/graduation-options.module';
+import { UserInformationModule } from './user-information/user-information.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { GraduationOptionsModule } from './graduation-options/graduation-options
     AuthModule,
     DegreeProgramsModule,
     GraduationOptionsModule,
+    UserInformationModule,
   ],
 })
 export class AppModule {}
