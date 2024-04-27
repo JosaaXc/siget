@@ -7,8 +7,8 @@ import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtStrategy } from './strategies/jwt.strategy';
-import { DegreeProgramsModule } from 'src/degree-programs/degree-programs.module';
-import { DegreeProgram } from 'src/degree-programs/entities/degree-program.entity';
+import { DegreeProgram } from '../degree-programs/entities/degree-program.entity';
+import { EmailModule } from '../email/email.module';
 
 @Module({
   controllers: [AuthController],
@@ -29,7 +29,8 @@ import { DegreeProgram } from 'src/degree-programs/entities/degree-program.entit
           signOptions: { expiresIn: '2h' }
         }
       }
-    })
+    }),
+    EmailModule
   ],
   exports: [ TypeOrmModule, JwtStrategy, PassportModule, JwtModule ]
 })

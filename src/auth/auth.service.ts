@@ -4,13 +4,14 @@ import { User } from './entities/user.entity';
 import { Repository } from 'typeorm';
 
 import * as bcrypt from 'bcrypt';
-import { CreateUserDto, LoginUserDto } from './dto';
+import { CreateUserDto, EmailToChangePasswordDto, LoginUserDto, ResetPasswordDto } from './dto';
 import { JwtPayload } from './interfaces/jwt-payload.interface';
-import { JwtService } from '@nestjs/jwt';
+import { JwtService, JwtSignOptions } from '@nestjs/jwt';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { handleDBError } from 'src/common/errors/handleDBError.errors';
-import { DegreeProgram } from 'src/degree-programs/entities/degree-program.entity';
+import { handleDBError } from '../common/errors/handleDBError.errors';
+import { DegreeProgram } from '../degree-programs/entities/degree-program.entity';
 import { PaginationDto } from '../common/dtos/pagination.dto';
+import { EmailService } from '../email/email.service';
 
 @Injectable()
 export class AuthService {
@@ -20,7 +21,8 @@ export class AuthService {
     private readonly userRepository: Repository<User>,
     @InjectRepository(DegreeProgram)
     private readonly degreeProgramRepository: Repository<DegreeProgram>,
-    private readonly jwtService: JwtService
+    private readonly jwtService: JwtService,
+    private readonly emailService: EmailService
   ){}
 
   async create(createAuthDto: CreateUserDto) {
@@ -66,11 +68,39 @@ export class AuthService {
 
   }
 
-  private getJwtToken( payload: JwtPayload ){
+  async forgotPassword({email}: EmailToChangePasswordDto){
 
-    const token = this.jwtService.sign(payload);
-    return token;
+    try {
 
+      const user = await this.userRepository.findOneOrFail({ where: { email } });
+  
+      const token = this.getJwtToken({ id: user.id }, { expiresIn: '10m' });
+      await this.emailService.sendEmailForgotPassword(user, token);
+
+      return { message: 'Email sent successfully' };
+
+    } catch (error) {
+      handleDBError(error);
+    }
+
+  }
+
+  async resetPassword (token: string, { password }: ResetPasswordDto) {
+
+    try {
+
+      const { id } = await this.jwtService.verify(token) as JwtPayload;
+      await this.userRepository.update(id, { password: await bcrypt.hash(password, 10) });
+      return { message: 'Password updated successfully' };
+
+    } catch (error) {
+      handleDBError(error);
+    }
+
+  }
+
+  private getJwtToken(payload: JwtPayload, options?: JwtSignOptions) {
+    return this.jwtService.sign(payload, options);
   }
 
   async getUsers(paginationDto: PaginationDto) {
