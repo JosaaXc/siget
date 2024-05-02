@@ -30,17 +30,19 @@ export class AuthService {
     try {
 
       const { password, ...userData } = createAuthDto;
+
+      // Send credentials to user by email when creating a new user
+      // await this.emailService.sendCredentialsToUserByEmail( password, userData.email );
+
       const user = this.userRepository.create({
         ...userData,
         password: await bcrypt.hash(password, 10)
       });
       await this.userRepository.save(user);
       delete user.password;
+      
 
-      return {
-        ...user,
-        token: this.getJwtToken({ id: user.id })
-      }
+      return user;
 
     } catch (error) {
       handleDBError(error);

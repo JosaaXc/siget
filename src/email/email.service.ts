@@ -19,4 +19,20 @@ export class EmailService {
       },
     });
   }
+
+  async sendCredentialsToUserByEmail( password: string, email: string){
+
+    const url = `${process.env.HOST_API}/auth/login`;
+
+    await this.mailerService.sendMail({
+      to: email,
+      subject: 'Credenciales de acceso',
+      template: './user-credentials', 
+      context: { 
+        email: email,
+        password: password,
+        url: url,
+      },
+    });
+  }
 }
