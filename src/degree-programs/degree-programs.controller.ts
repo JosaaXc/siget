@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe, Query } from '@nestjs/common';
 import { DegreeProgramsService } from './degree-programs.service';
 import { CreateDegreeProgramDto, EnrollDegreesToUserDto, EnrollUsersDto, UpdateDegreeProgramDto } from './dto';
 import { PaginationDto } from '../common/dtos/pagination.dto';
@@ -40,7 +40,9 @@ export class DegreeProgramsController {
   }
 
   @Get()
-  findAll( paginationDto: PaginationDto ) {
+  findAll(
+    @Query() paginationDto: PaginationDto 
+    ) {
     return this.degreeProgramsService.findAll( paginationDto );
   }
 
