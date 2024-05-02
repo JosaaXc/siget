@@ -1,8 +1,7 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe } from '@nestjs/common';
 import { DegreeProgramsService } from './degree-programs.service';
-import { CreateDegreeProgramDto } from './dto/create-degree-program.dto';
-import { UpdateDegreeProgramDto } from './dto/update-degree-program.dto';
-import { EnrollUsersDto } from './dto/enroll-user-to-degree.dto';
+import { CreateDegreeProgramDto, EnrollDegreesToUserDto, EnrollUsersDto, UpdateDegreeProgramDto } from './dto';
+import { PaginationDto } from '../common/dtos/pagination.dto';
 
 @Controller('degree-programs')
 export class DegreeProgramsController {
@@ -24,9 +23,32 @@ export class DegreeProgramsController {
     return this.degreeProgramsService.enrollUsers(degreeProgramsId, enrollUsersDto.usersId);
   }
 
+  @Post(':userId/enroll-degree-programs')
+  async enrollDegreesToUser(
+    @Param('userId', ParseUUIDPipe ) userId: string, 
+    @Body() enrollDegreesToUserDto: EnrollDegreesToUserDto
+  ) {
+    return this.degreeProgramsService.enrollDegreesToUser(userId, enrollDegreesToUserDto.degreeProgramsId);
+  }
+
+  @Delete(':userId/unenroll-degree-programs')
+  async unenrollDegreesToUser(
+    @Param('userId', ParseUUIDPipe ) userId: string, 
+    @Body() enrollDegreesToUserDto: EnrollDegreesToUserDto
+  ) {
+    return this.degreeProgramsService.unenrollDegreesToUser(userId, enrollDegreesToUserDto.degreeProgramsId);
+  }
+
   @Get()
-  findAll() {
-    return this.degreeProgramsService.findAll();
+  findAll( paginationDto: PaginationDto ) {
+    return this.degreeProgramsService.findAll( paginationDto );
+  }
+
+  @Get(':degreeProgramId/users')
+  async findUsersByDegreeProgram(
+    @Param('degreeProgramId', ParseUUIDPipe ) degreeProgramId: string
+  ) {
+    return this.degreeProgramsService.findUsersByDegreeProgram(degreeProgramId);
   }
 
   @Get(':id')

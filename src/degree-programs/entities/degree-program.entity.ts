@@ -16,7 +16,7 @@ export class DegreeProgram {
     @ManyToMany(
         () => User, 
         user => user.degreePrograms, 
-        { cascade: true }
+        { eager: true, onDelete: 'CASCADE'}
     )
     @JoinTable({ name: 'degree_programs_users' })
     users: User[];

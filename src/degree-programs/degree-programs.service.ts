@@ -4,8 +4,9 @@ import { UpdateDegreeProgramDto } from './dto/update-degree-program.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DegreeProgram } from './entities/degree-program.entity';
 import { Repository } from 'typeorm';
-import { handleDBError } from 'src/common/errors/handleDBError.errors';
-import { User } from 'src/auth/entities/user.entity';
+import { handleDBError } from '../common/errors/handleDBError.errors';
+import { User } from '../auth/entities/user.entity';
+import { PaginationDto } from '../common/dtos/pagination.dto';
 
 @Injectable()
 export class DegreeProgramsService {
@@ -41,14 +42,64 @@ export class DegreeProgramsService {
     }
   }
 
-  findAll() {
-    return this.degreeProgramRepository.find();
+  async enrollDegreesToUser(userId: string, degreeProgramsId: string[]) {
+    try {
+      await this.userRepository.createQueryBuilder()
+        .relation(User, 'degreePrograms')
+        .of(userId)
+        .add(degreeProgramsId);
+  
+      return { message: `Degree programs added on user` };
+
+    } catch (error) {
+      handleDBError(error);
+    }
+  }
+
+  async unenrollDegreesToUser(userId: string, degreeProgramsId: string[]) {
+    try {
+      await this.userRepository.createQueryBuilder()
+        .relation(User, 'degreePrograms')
+        .of(userId)
+        .remove(degreeProgramsId);
+  
+      return { message: `Degree programs removed on user` };
+
+    } catch (error) {
+      handleDBError(error);
+    }
+  }
+
+  findAll( paginationDto: PaginationDto) {
+    const { limit = 10, offset = 0 } = paginationDto;
+    try {
+      return this.degreeProgramRepository.find({
+        take: limit,
+        skip: offset
+      });
+    } catch (error) {
+      handleDBError(error);
+    }
   }
 
   async findOne(id: string) {
     try{
       return await this.degreeProgramRepository.findOneOrFail({ where: { id } });
     }catch(error){
+      handleDBError(error);
+    }
+  }
+
+  async findUsersByDegreeProgram(degreeProgramId: string) {
+    try {
+      
+      return await this.userRepository.createQueryBuilder('user')
+        .leftJoinAndSelect('user.degreePrograms', 'degreePrograms')
+        .where('degreePrograms.id = :degreeProgramId', { degreeProgramId })
+        .select(['user.id', 'user.email', 'user.roles'])
+        .getMany();
+
+    } catch (error) {
       handleDBError(error);
     }
   }
