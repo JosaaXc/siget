@@ -4,10 +4,10 @@ import { UpdateTopicDto } from './dto/update-topic.dto';
 import { User } from '../auth/entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Topic } from './entities/topic.entity';
-import { handleDBError } from 'src/common/errors/handleDBError.errors';
+import { handleDBError } from '../common/errors/handleDBError.errors';
 import { Repository } from 'typeorm';
 import { PaginationDto } from '../common/dtos/pagination.dto';
-import { ValidRoles } from 'src/auth/interfaces';
+import { ValidRoles } from '../auth/interfaces';
 
 @Injectable()
 export class TopicService {
@@ -86,13 +86,23 @@ export class TopicService {
       const { degreeProgram, graduationOption, collaborator, ...dataTopic } = updateTopicDto;
       const topic = this.topicRepository.create({
         ...dataTopic,
-        // degreeProgram: { id: degreeProgram },
-        // graduationOption: { id: graduationOption},
+        degreeProgram: { id: degreeProgram },
+        graduationOption: { id: graduationOption},
         collaborator: collaborator ? { id: collaborator } : null
       });
 
-      await this.topicRepository.update(id, topic);
-      return await this.topicRepository.findOneOrFail({ where: { id } });
+      await this.topicRepository
+        .createQueryBuilder()
+        .update(Topic)
+        .set(topic)
+        .where('id = :id', { id })
+        .execute();
+      
+      const topicUpdated = await this.topicRepository.findOneOrFail({ where: { id } });
+      delete topicUpdated.proposedBy;
+      delete topicUpdated.collaborator.email;
+      delete topicUpdated.collaborator.roles;
+      return topicUpdated;
   
     } catch (error) {
       handleDBError(error);

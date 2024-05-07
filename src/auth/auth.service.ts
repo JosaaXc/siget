@@ -12,6 +12,7 @@ import { handleDBError } from '../common/errors/handleDBError.errors';
 import { DegreeProgram } from '../degree-programs/entities/degree-program.entity';
 import { PaginationDto } from '../common/dtos/pagination.dto';
 import { EmailService } from '../email/email.service';
+import { UserInformation } from '../user-information/entities/user-information.entity';
 
 @Injectable()
 export class AuthService {
@@ -21,6 +22,8 @@ export class AuthService {
     private readonly userRepository: Repository<User>,
     @InjectRepository(DegreeProgram)
     private readonly degreeProgramRepository: Repository<DegreeProgram>,
+    @InjectRepository(UserInformation)
+    private readonly userInformationRepository: Repository<UserInformation>,
     private readonly jwtService: JwtService,
     private readonly emailService: EmailService
   ){}
@@ -114,7 +117,22 @@ export class AuthService {
   }
 
   async getUser(id: string) {
-    return await this.userRepository.findOne({ where: { id } });
+    try {
+      const user = await this.userRepository.findOneOrFail({ where: { id } });
+      const userInformation = await this.userInformationRepository
+        .createQueryBuilder('userInformation')
+        .where('userInformation.userId = :userId', { userId: id })
+        .getOne();
+      const userDegreePrograms = await this.degreeProgramRepository
+        .createQueryBuilder('degreeProgram')
+        .innerJoin('degreeProgram.users', 'user')
+        .where('user.id = :userId', { userId: id })
+        .getMany();
+      
+      return { user, userInformation, userDegreePrograms };
+    } catch (error) {
+      handleDBError(error);
+    }
   }
 
   async updateUser(id: string, updateUserDto: UpdateUserDto) {

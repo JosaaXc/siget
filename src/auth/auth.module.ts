@@ -9,6 +9,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { DegreeProgram } from '../degree-programs/entities/degree-program.entity';
 import { EmailModule } from '../email/email.module';
+import { UserInformation } from '../user-information/entities/user-information.entity';
 
 @Module({
   controllers: [AuthController],
@@ -17,7 +18,8 @@ import { EmailModule } from '../email/email.module';
     ConfigModule,
     TypeOrmModule.forFeature([
       User, 
-      DegreeProgram
+      DegreeProgram,
+      UserInformation
     ]),
     PassportModule.register({ defaultStrategy: 'jwt' }),
     JwtModule.registerAsync({

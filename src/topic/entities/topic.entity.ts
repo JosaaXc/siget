@@ -31,7 +31,7 @@ export class Topic {
     @JoinColumn({ name: 'proposedBy' })
     proposedBy: User;
     
-    @OneToOne(() => User, { eager: true, onDelete: 'SET NULL'})
+    @ManyToOne(() => User, { eager: true, onDelete: 'SET NULL'})
     @JoinColumn({ name: 'collaborator' })
     collaborator: User;
     
