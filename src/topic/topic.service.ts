@@ -8,6 +8,7 @@ import { handleDBError } from '../common/errors/handleDBError.errors';
 import { Repository } from 'typeorm';
 import { PaginationDto } from '../common/dtos/pagination.dto';
 import { ValidRoles } from '../auth/interfaces';
+import { TopicState } from './interfaces/topic-state.interface';
 
 @Injectable()
 export class TopicService {
@@ -52,11 +53,20 @@ export class TopicService {
 
   async findAll( paginationDto: PaginationDto ) {
 
-    const { limit, offset } = paginationDto;
-    return await this.topicRepository.find({
-      take: limit,
-      skip: offset
-    });
+    // search all topics with state proposed
+    const { limit = 10, offset = 0 } = paginationDto;
+    try {
+      
+      return await this.topicRepository.find({ 
+        where: { state: TopicState.PROPOSED },
+        relations: ['degreeProgram', 'graduationOption', 'proposedBy', 'collaborator'],
+        take: limit,
+        skip: offset
+      });
+
+    } catch (error) {
+      handleDBError(error);
+    }
 
   }
 

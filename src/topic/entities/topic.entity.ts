@@ -3,6 +3,7 @@ import { Column, Entity, JoinColumn, ManyToOne, OneToOne, PrimaryGeneratedColumn
 import { GraduationOption } from '../../graduation-options/entities/graduation-option.entity';
 import { User } from "../../auth/entities/user.entity";
 import { DegreeProgram } from "../../degree-programs/entities/degree-program.entity";
+import { TopicState } from "../interfaces/topic-state.interface";
 
 @Entity({ name: 'topics' })
 export class Topic {
@@ -19,6 +20,13 @@ export class Topic {
         nullable: false
     })
     description: string;
+
+    @Column({
+        type: 'enum',
+        enum: TopicState,
+        default: TopicState.PROPOSED
+    })
+    state: TopicState;
     
     @ManyToOne(() => DegreeProgram, { eager: true, onDelete: 'CASCADE' })
     degreeProgram: DegreeProgram;
