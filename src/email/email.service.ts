@@ -1,6 +1,7 @@
 import { MailerService } from '@nestjs-modules/mailer';
 import { Injectable } from '@nestjs/common';
-import { User } from 'src/auth/entities/user.entity';
+import { CreateUserDto } from '../auth/dto/create-user.dto';
+import { User } from '../auth/entities/user.entity';
 
 @Injectable()
 export class EmailService {
@@ -20,7 +21,7 @@ export class EmailService {
     });
   }
 
-  async sendCredentialsToUserByEmail( password: string, email: string){
+  async sendCredentialsToUserByEmail( {email, password}: CreateUserDto){
 
     const url = `${process.env.HOST_API}/auth/login`;
 

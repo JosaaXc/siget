@@ -1,5 +1,5 @@
 import { IsEmail } from "class-validator";
-import { DegreeProgram } from "src/degree-programs/entities/degree-program.entity";
+import { DegreeProgram } from "../../degree-programs/entities/degree-program.entity";
 import { Column, Entity, PrimaryGeneratedColumn, BeforeInsert, BeforeUpdate, OneToMany, ManyToMany, JoinTable } from 'typeorm';
 
 @Entity('users')

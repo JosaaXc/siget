@@ -31,14 +31,14 @@ export class AuthService {
 
       const { password, ...userData } = createAuthDto;
 
-      // Send credentials to user by email when creating a new user
-      // await this.emailService.sendCredentialsToUserByEmail( password, userData.email );
-
+      
       const user = this.userRepository.create({
         ...userData,
         password: await bcrypt.hash(password, 10)
       });
       await this.userRepository.save(user);
+      // Send credentials to user by email when creating a new user
+      // await this.emailService.sendCredentialsToUserByEmail( createAuthDto );
       delete user.password;
       
 
