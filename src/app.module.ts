@@ -7,6 +7,7 @@ import { DegreeProgramsModule } from './degree-programs/degree-programs.module';
 import { GraduationOptionsModule } from './graduation-options/graduation-options.module';
 import { UserInformationModule } from './user-information/user-information.module';
 import { TopicModule } from './topic/topic.module';
+import { TopicScheduleModule } from './topic-schedule/topic-schedule.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { TopicModule } from './topic/topic.module';
     GraduationOptionsModule,
     UserInformationModule,
     TopicModule,
+    TopicScheduleModule,
   ],
 })
 export class AppModule {}
