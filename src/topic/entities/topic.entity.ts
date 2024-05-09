@@ -4,6 +4,7 @@ import { GraduationOption } from '../../graduation-options/entities/graduation-o
 import { User } from "../../auth/entities/user.entity";
 import { DegreeProgram } from "../../degree-programs/entities/degree-program.entity";
 import { TopicState } from "../interfaces/topic-state.interface";
+import { ProposedByRole } from "../interfaces/proposed-by-role.interface";
 
 @Entity({ name: 'topics' })
 export class Topic {
@@ -42,5 +43,12 @@ export class Topic {
     @ManyToOne(() => User, { eager: true, onDelete: 'SET NULL'})
     @JoinColumn({ name: 'collaborator' })
     collaborator: User;
+    
+    @Column({
+        type: 'enum',
+        enum: ProposedByRole,
+        nullable: false
+    })
+    proposedByRole: string;
     
 }

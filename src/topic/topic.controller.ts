@@ -8,7 +8,7 @@ import { User } from '../auth/entities/user.entity';
 import { PaginationDto } from '../common/dtos/pagination.dto';
 
 @Controller('topic')
-@Auth( ValidRoles.student, ValidRoles.asesor )
+// @Auth( ValidRoles.student, ValidRoles.asesor )
 export class TopicController {
   constructor(private readonly topicService: TopicService) {}
 
@@ -32,6 +32,20 @@ export class TopicController {
     @GetUser() user: User
   ) {
     return this.topicService.findMyTopics(user);
+  }
+
+  @Get('students-topics')
+  findStudentsTopics(
+    @Query() paginationDto:PaginationDto
+  ) {
+    return this.topicService.findStudentsTopics(paginationDto);
+  }
+
+  @Get('asesor-topics')
+  findAsesorTopics(
+    @Query() paginationDto:PaginationDto
+  ) {
+    return this.topicService.findAsesorTopics(paginationDto);
   }
 
   @Get(':id')

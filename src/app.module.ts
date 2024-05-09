@@ -8,6 +8,7 @@ import { GraduationOptionsModule } from './graduation-options/graduation-options
 import { UserInformationModule } from './user-information/user-information.module';
 import { TopicModule } from './topic/topic.module';
 import { TopicScheduleModule } from './topic-schedule/topic-schedule.module';
+import { TopicRequestModule } from './topic-request/topic-request.module';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { TopicScheduleModule } from './topic-schedule/topic-schedule.module';
     UserInformationModule,
     TopicModule,
     TopicScheduleModule,
+    TopicRequestModule,
   ],
 })
 export class AppModule {}

@@ -9,6 +9,7 @@ import { Repository } from 'typeorm';
 import { PaginationDto } from '../common/dtos/pagination.dto';
 import { ValidRoles } from '../auth/interfaces';
 import { TopicState } from './interfaces/topic-state.interface';
+import { ProposedByRole } from './interfaces/proposed-by-role.interface';
 
 @Injectable()
 export class TopicService {
@@ -22,8 +23,7 @@ export class TopicService {
 
   async create(createTopicDto: CreateTopicDto, user: User) {
     
-    
-    await this.countTopicsByRoleOfUser(user);
+    const role = await this.countTopicsByRoleOfUser(user);
     const { degreeProgram, graduationOption, collaborator,  ...dataTopic }  = createTopicDto;
     
     try {
@@ -33,7 +33,8 @@ export class TopicService {
         degreeProgram: { id: degreeProgram },
         graduationOption: { id: graduationOption}, 
         proposedBy: { id: user.id },
-        collaborator: collaborator ? { id: collaborator } : null
+        collaborator: collaborator ? { id: collaborator } : null,
+        proposedByRole: role
       })
 
       const topicInserted =  await this.topicRepository
@@ -90,6 +91,38 @@ export class TopicService {
     }
   }
 
+  async findStudentsTopics(paginationDto: PaginationDto) {
+    const { limit = 10, offset = 0 } = paginationDto;
+    try {
+      
+      return await this.topicRepository.find({ 
+        where: { state: TopicState.PROPOSED, proposedByRole: ProposedByRole.student },
+        relations: ['degreeProgram', 'graduationOption', 'proposedBy', 'collaborator'],
+        take: limit,
+        skip: offset
+      });
+
+    } catch (error) {
+      handleDBError(error);
+    }
+  }
+
+  async findAsesorTopics(paginationDto: PaginationDto) {
+    const { limit = 10, offset = 0 } = paginationDto;
+    try {
+      
+      return await this.topicRepository.find({ 
+        where: { state: TopicState.PROPOSED, proposedByRole: ProposedByRole.asesor },
+        relations: ['degreeProgram', 'graduationOption', 'proposedBy', 'collaborator'],
+        take: limit,
+        skip: offset
+      });
+
+    } catch (error) {
+      handleDBError(error);
+    }
+  }
+
   async update(id: string, updateTopicDto: UpdateTopicDto) {
     try {
     
@@ -139,13 +172,15 @@ export class TopicService {
       const topics = await this.topicRepository.find({ where: { proposedBy: userFound } });
       if (topics.length >= 2) 
         throw new BadRequestException('You can only propose two topics');
+      return ProposedByRole.student;
     }
 
-    if (roles.includes(ValidRoles.asesor)) {
-      const topics = await this.topicRepository.find({ where: { proposedBy: { id: userFound.id } } });
-      if (topics.length >= 6) 
-        throw new BadRequestException('You can only collaborate in six topics');
-    }
+    return ProposedByRole.asesor;
+    // if (roles.includes(ValidRoles.asesor)) {
+    //   const topics = await this.topicRepository.find({ where: { proposedBy: { id: userFound.id } } });
+    //   if (topics.length >= 6) 
+    //     throw new BadRequestException('You can only collaborate in six topics');
+    // }
   }
 
 }
