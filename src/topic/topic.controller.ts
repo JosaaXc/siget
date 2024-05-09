@@ -8,7 +8,7 @@ import { User } from '../auth/entities/user.entity';
 import { PaginationDto } from '../common/dtos/pagination.dto';
 
 @Controller('topic')
-// @Auth( ValidRoles.student, ValidRoles.asesor )
+@Auth( ValidRoles.student, ValidRoles.asesor )
 export class TopicController {
   constructor(private readonly topicService: TopicService) {}
 
