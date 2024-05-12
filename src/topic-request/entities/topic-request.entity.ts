@@ -1,8 +1,9 @@
-import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, Unique } from "typeorm";
 import { Topic } from "../../topic/entities/topic.entity";
 import { User } from "../../auth/entities/user.entity";
 
 @Entity()
+@Unique(['topic', 'requestedBy'])
 export class TopicRequest {
 
     @PrimaryGeneratedColumn('uuid')

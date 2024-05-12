@@ -1,34 +1,41 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe } from '@nestjs/common';
 import { TopicRequestService } from './topic-request.service';
 import { CreateTopicRequestDto } from './dto/create-topic-request.dto';
-import { UpdateTopicRequestDto } from './dto/update-topic-request.dto';
+import { Auth, GetUser } from '../auth/decorators';
+import { User } from '../auth/entities/user.entity';
 
 @Controller('topic-request')
+@Auth()
 export class TopicRequestController {
   constructor(private readonly topicRequestService: TopicRequestService) {}
 
   @Post()
-  create(@Body() createTopicRequestDto: CreateTopicRequestDto) {
-    return this.topicRequestService.create(createTopicRequestDto);
+  create(
+    @Body() createTopicRequestDto: CreateTopicRequestDto,
+    @GetUser() user: User
+  ) {
+    return this.topicRequestService.create(createTopicRequestDto, user);
   }
 
-  @Get()
-  findAll() {
-    return this.topicRequestService.findAll();
+  @Get('my-peticions')
+  findMyPeticions(
+    @GetUser() user: User
+  ) {
+    return this.topicRequestService.findMyPeticions(user);
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.topicRequestService.findOne(+id);
+  @Get('my-requests')
+  findMyRequests(
+    @GetUser() user: User
+  ) {
+    return this.topicRequestService.findMyRequests(user);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateTopicRequestDto: UpdateTopicRequestDto) {
-    return this.topicRequestService.update(+id, updateTopicRequestDto);
-  }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.topicRequestService.remove(+id);
+  remove(
+    @Param('id', ParseUUIDPipe) id: string
+  ) {
+    return this.topicRequestService.remove(id);
   }
 }
