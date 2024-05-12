@@ -34,18 +34,13 @@ export class TopicController {
     return this.topicService.findMyTopics(user);
   }
 
-  @Get('students-topics')
-  findStudentsTopics(
-    @Query() paginationDto:PaginationDto
+  // get all topics depends the user role
+  @Get('/all-topics')
+  findAllTopicsByRole(
+    @GetUser() user: User,
+    @Query() paginationDto: PaginationDto
   ) {
-    return this.topicService.findStudentsTopics(paginationDto);
-  }
-
-  @Get('asesor-topics')
-  findAsesorTopics(
-    @Query() paginationDto:PaginationDto
-  ) {
-    return this.topicService.findAsesorTopics(paginationDto);
+    return this.topicService.findAllTopicsByRole(paginationDto, user);
   }
 
   @Get(':id')

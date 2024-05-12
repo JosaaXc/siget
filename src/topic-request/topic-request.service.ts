@@ -92,7 +92,6 @@ export class TopicRequestService {
     if( topic.affected === 0)
       throw new BadRequestException('Topic request not found');
 
-    
     return { message: 'Petition accepted successfully' };
 
   }

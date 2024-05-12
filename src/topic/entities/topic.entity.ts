@@ -3,7 +3,6 @@ import { Column, Entity, JoinColumn, ManyToOne, OneToOne, PrimaryGeneratedColumn
 import { GraduationOption } from '../../graduation-options/entities/graduation-option.entity';
 import { User } from "../../auth/entities/user.entity";
 import { DegreeProgram } from "../../degree-programs/entities/degree-program.entity";
-import { TopicState } from "../interfaces/topic-state.interface";
 import { ProposedByRole } from "../interfaces/proposed-by-role.interface";
 
 @Entity({ name: 'topics' })

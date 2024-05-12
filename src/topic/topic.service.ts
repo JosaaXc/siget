@@ -8,7 +8,6 @@ import { handleDBError } from '../common/errors/handleDBError.errors';
 import { Repository } from 'typeorm';
 import { PaginationDto } from '../common/dtos/pagination.dto';
 import { ValidRoles } from '../auth/interfaces';
-import { TopicState } from './interfaces/topic-state.interface';
 import { ProposedByRole } from './interfaces/proposed-by-role.interface';
 
 @Injectable()
@@ -66,6 +65,13 @@ export class TopicService {
 
   }
 
+  async findAllTopicsByRole(paginationDto:PaginationDto, user: User) {
+    const roles = user.roles; 
+    if(roles.includes(ValidRoles.student)) 
+      return await this.findAsesorTopics(paginationDto);
+    return await this.findStudentsTopics(paginationDto);
+  }
+
   async findOne(id: string) {
     try {
       return await this.topicRepository.findOneOrFail({ where: { id } });
@@ -85,7 +91,6 @@ export class TopicService {
   async findStudentsTopics(paginationDto: PaginationDto) {
     const { limit = 10, offset = 0 } = paginationDto;
     try {
-      
       return await this.topicRepository.find({ 
         where: { proposedByRole: ProposedByRole.student },
         relations: ['degreeProgram', 'graduationOption', 'proposedBy', 'collaborator'],
@@ -156,22 +161,15 @@ export class TopicService {
 
   private async countTopicsByRoleOfUser(user: User) {
 
-    const userFound = await this.userRepository.findOneOrFail({ where: { id: user.id } });
-    const roles = userFound.roles;
+    const roles = user.roles; 
 
     if (roles.includes(ValidRoles.student)) {
-      const topics = await this.topicRepository.find({ where: { proposedBy: userFound } });
+      const topics = await this.topicRepository.find({ where: { proposedBy: user } });
       if (topics.length >= 2) 
         throw new BadRequestException('You can only propose two topics');
       return ProposedByRole.student;
     }
-
     return ProposedByRole.asesor;
-    // if (roles.includes(ValidRoles.asesor)) {
-    //   const topics = await this.topicRepository.find({ where: { proposedBy: { id: userFound.id } } });
-    //   if (topics.length >= 6) 
-    //     throw new BadRequestException('You can only collaborate in six topics');
-    // }
   }
 
 }
