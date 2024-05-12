@@ -3,6 +3,7 @@ import { TopicRequestService } from './topic-request.service';
 import { CreateTopicRequestDto } from './dto/create-topic-request.dto';
 import { Auth, GetUser } from '../auth/decorators';
 import { User } from '../auth/entities/user.entity';
+import { AcceptPetitionDto } from './dto/accept-petition.dto';
 
 @Controller('topic-request')
 @Auth()
@@ -17,7 +18,7 @@ export class TopicRequestController {
     return this.topicRequestService.create(createTopicRequestDto, user);
   }
 
-  @Get('my-peticions')
+  @Get('my-petitions')
   findMyPeticions(
     @GetUser() user: User
   ) {
@@ -31,6 +32,13 @@ export class TopicRequestController {
     return this.topicRequestService.findMyRequests(user);
   }
 
+  @Patch('accept-my-petition/:id')
+  acceptMyPetitions(
+    @Body() acceptPetitionDto:AcceptPetitionDto,
+    @Param('id', ParseUUIDPipe ) id: string
+  ) {
+    return this.topicRequestService.acceptMyPetitions(id, acceptPetitionDto);
+  }
 
   @Delete(':id')
   remove(

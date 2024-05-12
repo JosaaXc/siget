@@ -21,13 +21,6 @@ export class Topic {
         nullable: false
     })
     description: string;
-
-    @Column({
-        type: 'enum',
-        enum: TopicState,
-        default: TopicState.PROPOSED
-    })
-    state: TopicState;
     
     @ManyToOne(() => DegreeProgram, { eager: true, onDelete: 'CASCADE' })
     degreeProgram: DegreeProgram;

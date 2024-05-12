@@ -53,18 +53,13 @@ export class TopicService {
   }
 
   async findAll( paginationDto: PaginationDto ) {
-
-    // search all topics with state proposed
     const { limit = 10, offset = 0 } = paginationDto;
     try {
-      
       return await this.topicRepository.find({ 
-        where: { state: TopicState.PROPOSED },
         relations: ['degreeProgram', 'graduationOption', 'proposedBy', 'collaborator'],
         take: limit,
         skip: offset
       });
-
     } catch (error) {
       handleDBError(error);
     }
@@ -73,9 +68,7 @@ export class TopicService {
 
   async findOne(id: string) {
     try {
-      
       return await this.topicRepository.findOneOrFail({ where: { id } });
-
     } catch (error) {
       handleDBError(error);
     }
@@ -83,9 +76,7 @@ export class TopicService {
 
   async findMyTopics(user: User) {
     try {
-      
       return await this.topicRepository.find({ where: { proposedBy: { id: user.id } }});
-
     } catch (error) {
       handleDBError(error);
     }
@@ -96,7 +87,7 @@ export class TopicService {
     try {
       
       return await this.topicRepository.find({ 
-        where: { state: TopicState.PROPOSED, proposedByRole: ProposedByRole.student },
+        where: { proposedByRole: ProposedByRole.student },
         relations: ['degreeProgram', 'graduationOption', 'proposedBy', 'collaborator'],
         take: limit,
         skip: offset
@@ -112,7 +103,7 @@ export class TopicService {
     try {
       
       return await this.topicRepository.find({ 
-        where: { state: TopicState.PROPOSED, proposedByRole: ProposedByRole.asesor },
+        where: { proposedByRole: ProposedByRole.asesor },
         relations: ['degreeProgram', 'graduationOption', 'proposedBy', 'collaborator'],
         take: limit,
         skip: offset

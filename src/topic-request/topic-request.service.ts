@@ -7,6 +7,7 @@ import { handleDBError } from '../common/errors/handleDBError.errors';
 import { User } from '../auth/entities/user.entity';
 import { UserInformation } from '../user-information/entities/user-information.entity';
 import { Topic } from '../topic/entities/topic.entity';
+import { AcceptPetitionDto } from './dto/accept-petition.dto';
 
 @Injectable()
 export class TopicRequestService {
@@ -83,6 +84,19 @@ export class TopicRequestService {
       handleDBError(error);
     }
   }
+
+  async acceptMyPetitions(id: string, acceptPetitionDto: AcceptPetitionDto) {
+
+    const { isAccepted } = acceptPetitionDto;
+    const topic = await this.topicRequestRepository.update(id, { isAccepted });
+    if( topic.affected === 0)
+      throw new BadRequestException('Topic request not found');
+
+    
+    return { message: 'Petition accepted successfully' };
+
+  }
+
 
   async remove(id: string) {
     const topic = this.topicRequestRepository.delete(id);
