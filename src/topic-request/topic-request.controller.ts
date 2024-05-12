@@ -40,6 +40,13 @@ export class TopicRequestController {
     return this.topicRequestService.acceptMyPetitions(id, acceptPetitionDto);
   }
 
+  @Delete('reject-a-petition/:id')
+  rejectAPetition(
+    @Param('id', ParseUUIDPipe) id: string
+  ) {
+    return this.topicRequestService.rejectAPetition(id);
+  }
+
   @Delete(':id')
   remove(
     @Param('id', ParseUUIDPipe) id: string

@@ -96,6 +96,10 @@ export class TopicRequestService {
 
   }
 
+  async rejectAPetition(id: string) {
+    await this.remove(id);
+    return { message: 'Petition rejected successfully' };
+  }
 
   async remove(id: string) {
     const topic = this.topicRequestRepository.delete(id);

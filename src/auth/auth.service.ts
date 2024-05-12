@@ -68,7 +68,7 @@ export class AuthService {
 
     return {
       ...user,
-      token: this.getJwtToken({ id: user.id })
+      token: this.getJwtToken({ id: user.id }, { expiresIn: '1d'} )
     }
 
   }
