@@ -8,7 +8,7 @@ import { handleDBError } from '../common/errors/handleDBError.errors';
 import { Repository } from 'typeorm';
 import { PaginationDto } from '../common/dtos/pagination.dto';
 import { ValidRoles } from '../auth/interfaces';
-import { ProposedByRole } from './interfaces/proposed-by-role.interface';
+import { ProposedByRole } from '../common/interfaces/proposed-by-role.interface';
 
 @Injectable()
 export class TopicService {

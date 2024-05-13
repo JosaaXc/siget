@@ -34,10 +34,10 @@ export class TopicRequestController {
 
   @Patch('accept-my-petition/:id')
   acceptMyPetitions(
-    @Body() acceptPetitionDto:AcceptPetitionDto,
-    @Param('id', ParseUUIDPipe ) id: string
+    @Param('id', ParseUUIDPipe ) id: string,
+    @GetUser() user: User
   ) {
-    return this.topicRequestService.acceptMyPetitions(id, acceptPetitionDto);
+    return this.topicRequestService.acceptMyPetitions(id, user);
   }
 
   @Delete('reject-a-petition/:id')

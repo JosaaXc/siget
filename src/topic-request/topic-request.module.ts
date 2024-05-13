@@ -6,6 +6,7 @@ import { TopicRequest } from './entities/topic-request.entity';
 import { AuthModule } from '../auth/auth.module';
 import { UserInformation } from '../user-information/entities/user-information.entity';
 import { Topic } from '../topic/entities/topic.entity';
+import { AcceptedTopic } from '../accepted-topics/entities/accepted-topic.entity';
 
 @Module({
   controllers: [TopicRequestController],
@@ -15,6 +16,7 @@ import { Topic } from '../topic/entities/topic.entity';
     TypeOrmModule.forFeature([
       TopicRequest,
       Topic,
+      AcceptedTopic,
       UserInformation
     ])
   ]

@@ -1,26 +1,21 @@
-import { Column, Entity, JoinColumn, ManyToOne, OneToOne, PrimaryGeneratedColumn, Unique } from "typeorm";
-
-import { GraduationOption } from '../../graduation-options/entities/graduation-option.entity';
-import { User } from "../../auth/entities/user.entity";
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from "typeorm";
 import { DegreeProgram } from "../../degree-programs/entities/degree-program.entity";
+import { User } from "../../auth/entities/user.entity";
 import { ProposedByRole } from "../../common/interfaces/proposed-by-role.interface";
+import { GraduationOption } from "../../graduation-options/entities/graduation-option.entity";
 
-@Entity({ name: 'topics' })
-export class Topic {
+@Entity()
+export class AcceptedTopic {
 
     @PrimaryGeneratedColumn('uuid')
-    id: string; 
+    id: string;
 
-    @Column('text', {
-        nullable: false
-    })
+    @Column()
     title: string;
 
-    @Column('text', {
-        nullable: false
-    })
+    @Column()
     description: string;
-    
+
     @ManyToOne(() => DegreeProgram, { eager: true, onDelete: 'CASCADE' })
     degreeProgram: DegreeProgram;
 
@@ -29,18 +24,22 @@ export class Topic {
     graduationOption: GraduationOption;
 
     @ManyToOne(() => User, { eager: true , onDelete: 'CASCADE' })
-    @JoinColumn({ name: 'proposedBy' })
-    proposedBy: User;
-    
+    @JoinColumn({ name: 'requestedBy' })
+    requestedBy: User;
+
     @ManyToOne(() => User, { eager: true, onDelete: 'SET NULL'})
     @JoinColumn({ name: 'collaborator' })
     collaborator: User;
-    
+
     @Column({
         type: 'enum',
         enum: ProposedByRole,
         nullable: false
     })
-    proposedByRole: string;
+    proposedByRole: string; 
+
+    @ManyToOne(() => User, { eager: true, onDelete: 'CASCADE'})
+    @JoinColumn({ name: 'acceptedBy' })
+    acceptedBy: User;
     
 }

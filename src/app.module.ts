@@ -9,6 +9,7 @@ import { UserInformationModule } from './user-information/user-information.modul
 import { TopicModule } from './topic/topic.module';
 import { TopicScheduleModule } from './topic-schedule/topic-schedule.module';
 import { TopicRequestModule } from './topic-request/topic-request.module';
+import { AcceptedTopicsModule } from './accepted-topics/accepted-topics.module';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { TopicRequestModule } from './topic-request/topic-request.module';
     TopicModule,
     TopicScheduleModule,
     TopicRequestModule,
+    AcceptedTopicsModule,
   ],
 })
 export class AppModule {}

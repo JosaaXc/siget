@@ -8,6 +8,7 @@ import { User } from '../auth/entities/user.entity';
 import { UserInformation } from '../user-information/entities/user-information.entity';
 import { Topic } from '../topic/entities/topic.entity';
 import { AcceptPetitionDto } from './dto/accept-petition.dto';
+import { AcceptedTopic } from '../accepted-topics/entities/accepted-topic.entity';
 
 @Injectable()
 export class TopicRequestService {
@@ -18,7 +19,9 @@ export class TopicRequestService {
     @InjectRepository(Topic)
     private topicRepository: Repository<Topic>,
     @InjectRepository(UserInformation)
-    private userInformationRepository: Repository<UserInformation>
+    private userInformationRepository: Repository<UserInformation>,
+    @InjectRepository(AcceptedTopic)
+    private acceptedTopicRepository: Repository<AcceptedTopic>,
   ) {}
 
   async create(createTopicRequestDto: CreateTopicRequestDto, user: User) {
@@ -85,15 +88,42 @@ export class TopicRequestService {
     }
   }
 
-  async acceptMyPetitions(id: string, acceptPetitionDto: AcceptPetitionDto) {
+  async acceptMyPetitions(id: string, user: User) {
 
-    const { isAccepted } = acceptPetitionDto;
-    const topic = await this.topicRequestRepository.update(id, { isAccepted });
-    if( topic.affected === 0)
-      throw new BadRequestException('Topic request not found');
+    try {
+      
+      const topic = await this.topicRequestRepository.findOneOrFail({ where: { id } });
+      return await this.migrateTopicToAcceptedTopic(topic, user);
 
-    return { message: 'Petition accepted successfully' };
+    } catch (error) {
+      handleDBError(error);
+    }
 
+  }
+
+  // this private funtion migrate the topic to accepted topic table and the user who accepted the request
+  private async migrateTopicToAcceptedTopic(topicRequest: TopicRequest, user: User) {
+    try {
+      
+      const topic = await this.topicRepository.findOneOrFail({ where: { id: topicRequest.topic.id } });
+      const acceptedTopic = this.acceptedTopicRepository.create({
+        title: topic.title,
+        description: topic.description,
+        degreeProgram: topic.degreeProgram,
+        graduationOption: topic.graduationOption,
+        proposedByRole: topic.proposedByRole,
+        acceptedBy: user,
+        requestedBy: topicRequest.requestedBy
+      });
+
+      await this.acceptedTopicRepository.save(acceptedTopic);
+      await this.topicRepository.delete(topic.id);
+
+      return acceptedTopic; 
+
+    } catch (error) {
+      handleDBError(error);
+    }
   }
 
   async rejectAPetition(id: string) {
