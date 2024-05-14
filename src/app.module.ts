@@ -7,7 +7,6 @@ import { DegreeProgramsModule } from './degree-programs/degree-programs.module';
 import { GraduationOptionsModule } from './graduation-options/graduation-options.module';
 import { UserInformationModule } from './user-information/user-information.module';
 import { TopicModule } from './topic/topic.module';
-import { TopicScheduleModule } from './topic-schedule/topic-schedule.module';
 import { TopicRequestModule } from './topic-request/topic-request.module';
 import { AcceptedTopicsModule } from './accepted-topics/accepted-topics.module';
 
@@ -30,7 +29,6 @@ import { AcceptedTopicsModule } from './accepted-topics/accepted-topics.module';
     GraduationOptionsModule,
     UserInformationModule,
     TopicModule,
-    TopicScheduleModule,
     TopicRequestModule,
     AcceptedTopicsModule,
   ],
