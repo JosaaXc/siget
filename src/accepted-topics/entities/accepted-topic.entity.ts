@@ -1,10 +1,11 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from "typeorm";
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, Unique } from "typeorm";
 import { DegreeProgram } from "../../degree-programs/entities/degree-program.entity";
 import { User } from "../../auth/entities/user.entity";
 import { ProposedByRole } from "../../common/interfaces/proposed-by-role.interface";
 import { GraduationOption } from "../../graduation-options/entities/graduation-option.entity";
 
 @Entity()
+@Unique(['requestedBy', 'acceptedBy'])
 export class AcceptedTopic {
 
     @PrimaryGeneratedColumn('uuid')

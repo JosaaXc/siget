@@ -7,7 +7,6 @@ import { handleDBError } from '../common/errors/handleDBError.errors';
 import { User } from '../auth/entities/user.entity';
 import { UserInformation } from '../user-information/entities/user-information.entity';
 import { Topic } from '../topic/entities/topic.entity';
-import { AcceptPetitionDto } from './dto/accept-petition.dto';
 import { AcceptedTopic } from '../accepted-topics/entities/accepted-topic.entity';
 
 @Injectable()
@@ -93,7 +92,7 @@ export class TopicRequestService {
     try {
       
       const topic = await this.topicRequestRepository.findOneOrFail({ where: { id } });
-      return await this.migrateTopicToAcceptedTopic(topic, user);
+      return this.migrateTopicToAcceptedTopic(topic, user);
 
     } catch (error) {
       handleDBError(error);
@@ -113,14 +112,15 @@ export class TopicRequestService {
         graduationOption: topic.graduationOption,
         proposedByRole: topic.proposedByRole,
         acceptedBy: user,
+        collaborator: topic.collaborator,
         requestedBy: topicRequest.requestedBy
       });
 
-      await this.acceptedTopicRepository.save(acceptedTopic);
-      await this.topicRepository.delete(topic.id);
-
-      return acceptedTopic; 
-
+      await this.topicRepository.delete(topic.id);      
+      //TODO: Notify the user requestedBy that the topic was accepted
+      
+      return await this.acceptedTopicRepository.save(acceptedTopic);
+    
     } catch (error) {
       handleDBError(error);
     }
