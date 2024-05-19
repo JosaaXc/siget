@@ -6,6 +6,8 @@
 .env 
 postgres1/
 
+src/static/documents/*
+
 # Logs
 logs
 *.logc:\Users\kcoba\Desktop\AprendiendoNest\04-teslo-shop\.env
