@@ -5,7 +5,7 @@ import { existsSync } from 'fs';
 import { join } from 'path';
 
 import { TopicDocument } from './entities/topic-document.entity';
-import { handleDBError } from 'src/common/errors/handleDBError.errors';
+import { handleDBError } from '../common/errors/handleDBError.errors';
 
 @Injectable()
 export class FilesService {
@@ -39,6 +39,17 @@ export class FilesService {
       });
 
       return await this.topicDocumentRepository.save(newTopicDocument);
+
+    } catch (error) {
+      handleDBError(error);
+    }
+  }
+
+  async updateTopicDocument( topicDocument: string , secureUrl: string){
+    try {
+
+      await this.topicDocumentRepository.update( topicDocument, { url: secureUrl });
+      return await this.topicDocumentRepository.findOneOrFail({ where: { id: topicDocument }});
 
     } catch (error) {
       handleDBError(error);

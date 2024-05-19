@@ -68,4 +68,26 @@ export class FilesController {
     return this.filesService.saveTopicDocument( acceptedTopicId, secureUrl );
   }
 
+  @Post('update-topic')
+  @Auth(ValidRoles.student)
+  @UseInterceptors(FileInterceptor('file', {
+    fileFilter: fileFilter, 
+    limits: { fileSize: 1024 * 1024 * 10 }, // 10mb
+    storage: diskStorage({
+      destination: './static/documents/',
+      filename: studentFileNamer // Aquí se usa el ID del estudiante
+    })
+  }))
+  async updateStudentFile(
+    @GetUser() user: User,
+    @UploadedFile() file: Express.Multer.File,
+    @Req() req: Request,
+    @Query('topic-document', ParseUUIDPipe ) topicDocument: string
+  ) {
+    req.user = user;
+    if(!file) throw new BadRequestException('Make sure the file is a document(doc, docx, pdf)')
+    const secureUrl = await this.filesService.uploadFile(file, this.hostApi);
+    return this.filesService.updateTopicDocument( topicDocument, secureUrl );
+  }
+
 }
