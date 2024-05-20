@@ -10,6 +10,7 @@ import { TopicModule } from './topic/topic.module';
 import { TopicRequestModule } from './topic-request/topic-request.module';
 import { AcceptedTopicsModule } from './accepted-topics/accepted-topics.module';
 import { FilesModule } from './files/files.module';
+import { TopicDocumentCommentsModule } from './topic-document-comments/topic-document-comments.module';
 
 @Module({
   imports: [
@@ -33,6 +34,7 @@ import { FilesModule } from './files/files.module';
     TopicRequestModule,
     AcceptedTopicsModule,
     FilesModule,
+    TopicDocumentCommentsModule,
   ],
 })
 export class AppModule {}
