@@ -6,6 +6,7 @@ import { join } from 'path';
 
 import { TopicDocument } from './entities/topic-document.entity';
 import { handleDBError } from '../common/errors/handleDBError.errors';
+import { User } from '../auth/entities/user.entity';
 
 @Injectable()
 export class FilesService {
@@ -25,17 +26,26 @@ export class FilesService {
 
   }
 
+  async getStudentTopicDocuments( user: User ){
+    try {
+      return await this.topicDocumentRepository.find({ where: { uploadedBy: user } });
+    } catch (error) {
+      handleDBError(error);
+    }
+  }
+
   async uploadFile(file: Express.Multer.File, hostApi: string) {
     const secureUrl = `${ hostApi }/files/document/${ file.filename }`
     return secureUrl;
   }
 
-  async saveTopicDocument( acceptedTopicId: string , secureUrl: string){
+  async saveTopicDocument( acceptedTopicId: string , secureUrl: string, user: User){
     try {
       
       const newTopicDocument = this.topicDocumentRepository.create({
         acceptedTopic: { id: acceptedTopicId },
-        url: secureUrl
+        url: secureUrl,
+        uploadedBy: user
       });
 
       return await this.topicDocumentRepository.save(newTopicDocument);
@@ -55,4 +65,5 @@ export class FilesService {
       handleDBError(error);
     }
   }
+
 }

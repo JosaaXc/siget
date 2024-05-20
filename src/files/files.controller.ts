@@ -22,7 +22,6 @@ export class FilesController {
   }
 
   @Get('document/:imageName')  
-  //TODO: Define the Auth decorator to validate the user role
   async findDocument(
     @Res() res: Response,
     @Param('imageName') imageName: string
@@ -31,8 +30,15 @@ export class FilesController {
     res.sendFile( path );
   }
 
+  @Get('my-documents')
+  @Auth(ValidRoles.student)
+  async getStudentDocuments(
+    @GetUser() user: User
+  ){
+    return this.filesService.getStudentTopicDocuments(user);
+  }
+
   @Post('upload-titulation')
-  //TODO: Define the Auth decorator to validate the user role
   @UseInterceptors(FileInterceptor('file', {
     fileFilter: fileFilter, 
     limits: { fileSize: 1024 * 1024 * 10 }, // 10mb
@@ -65,7 +71,7 @@ export class FilesController {
     req.user = user;
     if(!file) throw new BadRequestException('Make sure the file is a document(doc, docx, pdf)')
     const secureUrl = await this.filesService.uploadFile(file, this.hostApi);
-    return this.filesService.saveTopicDocument( acceptedTopicId, secureUrl );
+    return this.filesService.saveTopicDocument( acceptedTopicId, secureUrl, user );
   }
 
   @Post('update-topic')
