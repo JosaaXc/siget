@@ -44,28 +44,28 @@ export class AuthService {
       // await this.emailService.sendCredentialsToUserByEmail( createAuthDto );
       delete user.password;
       
-
       return user;
-
+      
     } catch (error) {
       handleDBError(error);
     }
   }
-
+  
   async login(loginUserDto: LoginUserDto){
-
+    
     const { email, password } = loginUserDto;
     const user = await this.userRepository.findOne({
       where: { email },
       select: { email: true, password: true, roles:true, id: true }
     });
-
+    
     if(!user) 
       throw new UnauthorizedException('Invalid credentials(email)');
-
+    
     if( !bcrypt.compareSync(password, user.password ) )
       throw new UnauthorizedException('Invalid credentials(password)');
-
+    
+    delete user.password;
     return {
       ...user,
       token: this.getJwtToken({ id: user.id }, { expiresIn: '1d'} )
