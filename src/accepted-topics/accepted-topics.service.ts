@@ -44,17 +44,30 @@ export class AcceptedTopicsService {
       query.orWhere('acceptedTopic.collaborator = :id', { id });
       query.andWhere('acceptedTopic.proposedByRole = :role', { role: ValidRoles.student });
 
+      query.leftJoinAndSelect('acceptedTopic.requestedBy', 'requestedBy');
+      query.leftJoinAndSelect('acceptedTopic.collaborator', 'collaborator');
+
       query.skip(offset);
       query.take(limit);
 
       const [items, total] = await query.getManyAndCount();
 
       const itemsWithUserInformation = await Promise.all(items.map(async (item) => {
-        const requestedBy = await this.userInformationRepository.findOne({ where: { user: item.requestedBy }, select: ['name', 'fatherLastName', 'motherLastName']});
-        const collaborator = await this.userInformationRepository.findOne({ where: { user: item.collaborator }, select: ['name', 'fatherLastName', 'motherLastName']});
-        return { ...item, requestedBy, collaborator };
+        const requestedBy = await this.userInformationRepository.createQueryBuilder("userInformation")
+          .innerJoin("userInformation.user", "user", "user.id = :id", { id: item.requestedBy.id })
+          .select(['userInformation.name', 'userInformation.fatherLastName', 'userInformation.motherLastName'])
+          .getOne();
+      
+        const collaborator = await this.userInformationRepository.createQueryBuilder("userInformation")
+          .innerJoin("userInformation.user", "user", "user.id = :id", { id: item.collaborator.id })
+          .select(['userInformation.name', 'userInformation.fatherLastName', 'userInformation.motherLastName'])
+          .getOne();
+      
+        return { ...item, requestedBy: { ...requestedBy, id: item.requestedBy.id }, collaborator: { ...collaborator, id: item.collaborator.id } };
       }));
-
+      
+      itemsWithUserInformation.forEach(item => { delete item.proposedByRole; });
+      
       return { items: itemsWithUserInformation, total };
     } catch (error) {
       handleDBError(error);
@@ -65,27 +78,38 @@ export class AcceptedTopicsService {
     try {
       const { id } = user;
       const { limit, offset } = paginationDto;
-
+  
       const query = this.acceptedTopicRepository.createQueryBuilder('acceptedTopic');
-
+  
       query.where('acceptedTopic.acceptedBy = :id', { id });
       query.andWhere('acceptedTopic.proposedByRole = :role', { role: ValidRoles.asesor });
+  
+      query.leftJoinAndSelect('acceptedTopic.requestedBy', 'requestedBy');
+      query.leftJoinAndSelect('acceptedTopic.collaborator', 'collaborator');
 
       query.skip(offset);
       query.take(limit);
-
+  
       const [items, total] = await query.getManyAndCount();
-
+  
       const itemsWithUserInformation = await Promise.all(items.map(async (item) => {
-        const requestedBy = await this.userInformationRepository.findOne({ where: { user: item.requestedBy }, select: ['name', 'fatherLastName', 'motherLastName']});
-        const collaborator = await this.userInformationRepository.findOne({ where: { user: item.collaborator }, select: ['name', 'fatherLastName', 'motherLastName']});
-        return { ...item, requestedBy, collaborator };
+        const requestedBy = await this.userInformationRepository.createQueryBuilder("userInformation")
+          .innerJoin("userInformation.user", "user", "user.id = :id", { id: item.requestedBy.id })
+          .select(['userInformation.name', 'userInformation.fatherLastName', 'userInformation.motherLastName'])
+          .getOne();
+      
+        const collaborator = await this.userInformationRepository.createQueryBuilder("userInformation")
+          .innerJoin("userInformation.user", "user", "user.id = :id", { id: item.collaborator.id })
+          .select(['userInformation.name', 'userInformation.fatherLastName', 'userInformation.motherLastName'])
+          .getOne();
+      
+        return { ...item, requestedBy: { ...requestedBy, id: item.requestedBy.id }, collaborator: { ...collaborator, id: item.collaborator.id } };
       }));
 
-      itemsWithUserInformation.forEach(item => delete item.proposedByRole);
-
+      itemsWithUserInformation.forEach(item => { delete item.proposedByRole; });
+  
       return { items: itemsWithUserInformation, total };
-
+  
     } catch (error) {
       handleDBError(error);
     }
