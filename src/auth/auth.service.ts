@@ -109,11 +109,26 @@ export class AuthService {
   }
 
   async getUsers(paginationDto: PaginationDto) {
-    const { limit = 15 , offset = 0 } = paginationDto;
-    return await this.userRepository.find({ 
-      skip: offset, 
-      take: limit 
-    });
+    try {
+      const { limit = 15 , offset = 0 } = paginationDto;
+      const users = await this.userRepository.find({
+        skip: offset,
+        take: limit,
+      });
+  
+      const usersWithInformation = await Promise.all(users.map(async (user) => {
+        const userInformation = await this.userInformationRepository
+          .createQueryBuilder('userInformation')
+          .select(['userInformation.name', 'userInformation.fatherLastName', 'userInformation.motherLastName'])
+          .where('userInformation.userId = :userId', { userId: user.id })
+          .getOne();
+        return { ...user, userInformation };
+      }));
+  
+      return usersWithInformation;
+    } catch (error) {
+      handleDBError(error);
+    }
   }
 
   async getUser(id: string) {

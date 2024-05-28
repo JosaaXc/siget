@@ -22,12 +22,13 @@ export class DegreeProgram {
     users: User[];
 
     @BeforeInsert()
-    checkNameBeforeInset(){
-        this.name = this.name.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s/g, '-').trim().toLowerCase();
+    checkNameBeforeInsert(){
+        this.name = this.name.replace(/\s/g, '-').trim().toLowerCase();
     }
+
 
     @BeforeUpdate()
     checkNameBeforeUpdate(){
-        this.name = this.name.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s/g, '-').trim().toLowerCase();
+        this.name = this.name.replace(/\s/g, '-').trim().toLowerCase();
     }
 }
