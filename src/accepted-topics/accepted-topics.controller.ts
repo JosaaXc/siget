@@ -1,6 +1,5 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, Query, ParseUUIDPipe } from '@nestjs/common';
 import { AcceptedTopicsService } from './accepted-topics.service';
-import { UpdateAcceptedTopicDto } from './dto/update-accepted-topic.dto';
 import { PaginationDto } from '../common/dtos/pagination.dto';
 import { Auth, GetUser } from '../auth/decorators';
 import { User } from '../auth/entities/user.entity';
@@ -17,6 +16,14 @@ export class AcceptedTopicsController {
     @GetUser() user: User
   ) {
     return this.acceptedTopicsService.findAll( paginationDto, user ); 
+  }
+
+
+  // get all users with role student that have not been accepted
+  @Get('students')
+  @Auth()
+  findStudents() {
+    return this.acceptedTopicsService.findStudents();
   }
 
   @Get(':id')
