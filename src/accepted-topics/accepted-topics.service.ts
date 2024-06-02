@@ -18,71 +18,16 @@ export class AcceptedTopicsService {
     private readonly userInformationRepository: Repository<UserInformation>,
   ) {}
 
-  findAll( paginationDto:PaginationDto, user: User ) {
-    const roles = user.roles;
-
-    try {
-      
-      if(roles.includes(ValidRoles.student)) 
-        return this.findAcceptedTopicsByStudent( paginationDto, user );
-
-      return this.findAcceptedTopicsBySupervisor( paginationDto, user );
-
-    } catch (error) {
-      handleDBError(error);
-    }
-  }
-
-  async findAcceptedTopicsByStudent(paginationDto: PaginationDto, user: User) {
+  async findAll(paginationDto: PaginationDto, user: User) {
     try {
       const { id } = user;
       const { limit, offset } = paginationDto;
-
+  
       const query = this.acceptedTopicRepository.createQueryBuilder('acceptedTopic');
-
+  
       query.where('acceptedTopic.requestedBy = :id', { id });
       query.orWhere('acceptedTopic.collaborator = :id', { id });
-      query.andWhere('acceptedTopic.proposedByRole = :role', { role: ValidRoles.student });
-
-      query.leftJoinAndSelect('acceptedTopic.requestedBy', 'requestedBy');
-      query.leftJoinAndSelect('acceptedTopic.collaborator', 'collaborator');
-
-      query.skip(offset);
-      query.take(limit);
-
-      const [items, total] = await query.getManyAndCount();
-
-      const itemsWithUserInformation = await Promise.all(items.map(async (item) => {
-        const requestedBy = await this.userInformationRepository.createQueryBuilder("userInformation")
-          .innerJoin("userInformation.user", "user", "user.id = :id", { id: item.requestedBy.id })
-          .select(['userInformation.name', 'userInformation.fatherLastName', 'userInformation.motherLastName'])
-          .getOne();
-      
-        const collaborator = await this.userInformationRepository.createQueryBuilder("userInformation")
-          .innerJoin("userInformation.user", "user", "user.id = :id", { id: item.collaborator.id })
-          .select(['userInformation.name', 'userInformation.fatherLastName', 'userInformation.motherLastName'])
-          .getOne();
-      
-        return { ...item, requestedBy: { ...requestedBy, id: item.requestedBy.id }, collaborator: { ...collaborator, id: item.collaborator.id } };
-      }));
-      
-      itemsWithUserInformation.forEach(item => { delete item.proposedByRole; });
-      
-      return { items: itemsWithUserInformation, total };
-    } catch (error) {
-      handleDBError(error);
-    }
-  }
-
-  async findAcceptedTopicsBySupervisor(paginationDto: PaginationDto, user: User) {
-    try {
-      const { id } = user;
-      const { limit, offset } = paginationDto;
-  
-      const query = this.acceptedTopicRepository.createQueryBuilder('acceptedTopic');
-  
-      query.where('acceptedTopic.acceptedBy = :id', { id });
-      query.andWhere('acceptedTopic.proposedByRole = :role', { role: ValidRoles.asesor });
+      query.orWhere('acceptedTopic.acceptedBy = :id', { id });
   
       query.leftJoinAndSelect('acceptedTopic.requestedBy', 'requestedBy');
       query.leftJoinAndSelect('acceptedTopic.collaborator', 'collaborator');
