@@ -16,7 +16,7 @@ export class TopicDocumentCommentsController {
     return this.topicDocumentCommentsService.create(createTopicDocumentCommentDto);
   }
 
-  @Get(':topicDocumentId')
+  @Get('comments/:topicDocumentId')
   @Auth(ValidRoles.asesor, ValidRoles.student, ValidRoles.titular_materia)
   findAllCommentsByTopicDocument(
     @Param('topicDocumentId', ParseUUIDPipe ) topicDocumentId: string,
