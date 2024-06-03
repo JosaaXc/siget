@@ -20,4 +20,25 @@ export class TopicDocument{
   @JoinColumn({ name: 'uploadedBy'})
   uploadedBy: User;
 
+  @Column('bool', { default: false })
+  chapter1: boolean;
+  
+  @Column('bool', { default: false })
+  chapter2: boolean;
+  
+  @Column('bool', { default: false })
+  chapter3: boolean;
+  
+  @Column('bool', { default: false })
+  chapter4: boolean;
+  
+  @Column('bool', { default: false })
+  chapter5: boolean;
+  
+  @Column('bool', { default: false })
+  chapter6: boolean;
+  
+  @Column('bool', { default: false })
+  chapter7: boolean;
+
 }

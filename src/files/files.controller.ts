@@ -1,8 +1,8 @@
-import { BadRequestException, Body, Controller, Get, Param, ParseUUIDPipe, Post, Query, Req, Res, UploadedFile, UseInterceptors } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Get, Param, ParseIntPipe, ParseUUIDPipe, Patch, Post, Query, Req, Res, UploadedFile, UseInterceptors } from '@nestjs/common';
 import { FilesService } from './files.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
-import { fileFilter, fileNamer, studentFileNamer } from './helpers';
+import { fileFilter, studentFileNamer } from './helpers';
 import { Response, Request } from 'express'; // Add Request import
 import { ConfigService } from '@nestjs/config';
 import { Auth, GetUser } from '../auth/decorators';
@@ -89,6 +89,15 @@ export class FilesController {
     if(!file) throw new BadRequestException('Make sure the file is a document(doc, docx, pdf)')
     const secureUrl = await this.filesService.uploadFile(file, this.hostApi);
     return this.filesService.updateTopicDocument( topicDocument, secureUrl );
+  }
+
+  @Patch('complete-chapter/:id')
+  @Auth(ValidRoles.asesor)
+  async completeChapter(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body('chapter', ParseIntPipe ) chapter: number
+  ){
+    return this.filesService.completeChapter(id, +chapter);
   }
 
 }

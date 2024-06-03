@@ -74,4 +74,21 @@ export class FilesService {
     }
   }
 
+  async completeChapter( id: string, chapterNumber: number ){
+    if( chapterNumber > 7 ) throw new BadRequestException('Chapter number is invalid');
+
+    const topicDocument = await this.topicDocumentRepository.findOne({ where: { id: id } });
+    if( !topicDocument ) throw new BadRequestException('Topic document not found');
+    if( topicDocument[`chapter${chapterNumber}`] ) throw new BadRequestException(`Chapter ${chapterNumber} is already completed`);
+    for( let i = 1; i < chapterNumber ; i++ )
+      if(!topicDocument[`chapter${i}`]) throw new BadRequestException(`Chapter ${i} is not completed`);
+    topicDocument[`chapter${chapterNumber}`] = true;
+    
+    try {
+      return await this.topicDocumentRepository.save(topicDocument);
+    } catch (error) {
+      handleDBError(error);
+    }
+  }
+
 }
