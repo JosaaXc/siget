@@ -27,7 +27,7 @@ export class TopicDocumentCommentsService {
     }
   }
 
-  async findAllCommentsByTopicDocument( { topicDocumentId }: GetAllCommentsDto, paginationDto: PaginationDto ) {
+  async findAllCommentsByTopicDocument( topicDocumentId:string , paginationDto: PaginationDto ) {
     try {
       
       const { limit = 10, offset = 0 } = paginationDto;
@@ -37,8 +37,8 @@ export class TopicDocumentCommentsService {
         take: limit,
         skip: offset
       });
-      
-      return { result, total }; 
+
+      return { result, total };
 
     } catch (error) {
       handleDBError(error); 

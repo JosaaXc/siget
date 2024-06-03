@@ -16,13 +16,13 @@ export class TopicDocumentCommentsController {
     return this.topicDocumentCommentsService.create(createTopicDocumentCommentDto);
   }
 
-  @Get()
+  @Get(':topicDocumentId')
   @Auth(ValidRoles.asesor, ValidRoles.student, ValidRoles.titular_materia)
   findAllCommentsByTopicDocument(
+    @Param('topicDocumentId', ParseUUIDPipe ) topicDocumentId: string,
     @Query() paginationDto:PaginationDto,
-    @Body()  getAllCommentsDto:GetAllCommentsDto,
   ) {
-    return this.topicDocumentCommentsService.findAllCommentsByTopicDocument(getAllCommentsDto, paginationDto);
+    return this.topicDocumentCommentsService.findAllCommentsByTopicDocument(topicDocumentId, paginationDto);
   }
 
   @Get(':id')
