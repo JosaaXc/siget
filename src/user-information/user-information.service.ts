@@ -43,6 +43,10 @@ export class UserInformationService {
     }
   }
 
+  async findOneById(id: string) {
+    return await this.findOne(id); 
+  }
+
   async update(userId: string, updateUserInformationDto: UpdateUserInformationDto) {
     try {
       

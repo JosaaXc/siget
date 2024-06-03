@@ -31,6 +31,12 @@ export class UserInformationController {
     return this.userInformationService.findOne(user.id);
   }
 
+  // find user information by id
+  @Get(':id')
+  findOneById(@Param('id') id: string) {
+    return this.userInformationService.findOneById(id);
+  }
+
   @Patch()
   update(
     @GetUser() user: User, 
