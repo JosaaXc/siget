@@ -20,22 +20,18 @@ export class AcceptedTopicsService {
     private readonly userRepository: Repository<User>,
   ) {}
 
-  async findAll(paginationDto: PaginationDto, user: User) {
+  async findAll({limit = 10, offset = 0}: PaginationDto, { id }: User) {
     try {
-      const { id } = user;
-      const { limit, offset } = paginationDto;
   
-      const query = this.acceptedTopicRepository.createQueryBuilder('acceptedTopic');
-  
-      query.where('acceptedTopic.requestedBy = :id', { id });
-      query.orWhere('acceptedTopic.collaborator = :id', { id });
-      query.orWhere('acceptedTopic.acceptedBy = :id', { id });
-  
-      query.leftJoinAndSelect('acceptedTopic.requestedBy', 'requestedBy');
-      query.leftJoinAndSelect('acceptedTopic.collaborator', 'collaborator');
-
-      query.skip(offset);
-      query.take(limit);
+      const query = this.acceptedTopicRepository.createQueryBuilder('acceptedTopic')
+        .where('acceptedTopic.requestedBy = :id', { id })
+        .orWhere('acceptedTopic.collaborator = :id', { id })
+        .orWhere('acceptedTopic.acceptedBy = :id', { id })
+        .leftJoinAndSelect('acceptedTopic.requestedBy', 'requestedBy')
+        .leftJoinAndSelect('acceptedTopic.collaborator', 'collaborator')
+        .leftJoinAndSelect('acceptedTopic.acceptedBy', 'acceptedBy')
+        .skip(offset)
+        .take(limit)
   
       const [items, total] = await query.getManyAndCount();
   
@@ -44,13 +40,21 @@ export class AcceptedTopicsService {
           .innerJoin("userInformation.user", "user", "user.id = :id", { id: item.requestedBy.id })
           .select(['userInformation.name', 'userInformation.fatherLastName', 'userInformation.motherLastName'])
           .getOne();
-      
-        const collaborator = await this.userInformationRepository.createQueryBuilder("userInformation")
-          .innerJoin("userInformation.user", "user", "user.id = :id", { id: item.collaborator.id })
+        
+        const acceptedBy = await this.userInformationRepository.createQueryBuilder("userInformation")
+          .innerJoin("userInformation.user", "user", "user.id = :id", { id: item.acceptedBy.id })
           .select(['userInformation.name', 'userInformation.fatherLastName', 'userInformation.motherLastName'])
           .getOne();
       
-        return { ...item, requestedBy: { ...requestedBy, id: item.requestedBy.id }, collaborator: { ...collaborator, id: item.collaborator.id } };
+        let collaborator = null;
+        if (item.collaborator) {
+          collaborator = await this.userInformationRepository.createQueryBuilder("userInformation")
+            .innerJoin("userInformation.user", "user", "user.id = :id", { id: item.collaborator.id })
+            .select(['userInformation.name', 'userInformation.fatherLastName', 'userInformation.motherLastName'])
+            .getOne();
+        }
+      
+        return { ...item, requestedBy: { ...requestedBy, id: item.requestedBy.id }, acceptedBy: {...acceptedBy, id: item.acceptedBy.id },collaborator: collaborator ? { ...collaborator, id: item.collaborator.id } : null };
       }));
 
       itemsWithUserInformation.forEach(item => { delete item.proposedByRole; });
