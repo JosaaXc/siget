@@ -12,6 +12,7 @@ import { AcceptedTopicsModule } from './accepted-topics/accepted-topics.module';
 import { FilesModule } from './files/files.module';
 import { TopicDocumentCommentsModule } from './topic-document-comments/topic-document-comments.module';
 import { ScheduleModule } from './schedule/schedule.module';
+import { AdvisorySessionsModule } from './advisory-sessions/advisory-sessions.module';
 
 @Module({
   imports: [
@@ -37,6 +38,7 @@ import { ScheduleModule } from './schedule/schedule.module';
     FilesModule,
     TopicDocumentCommentsModule,
     ScheduleModule,
+    AdvisorySessionsModule,
   ],
 })
 export class AppModule {}
