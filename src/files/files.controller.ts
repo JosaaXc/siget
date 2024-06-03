@@ -38,18 +38,13 @@ export class FilesController {
     return this.filesService.getStudentTopicDocuments(user);
   }
 
-  @Post('upload-titulation')
-  @UseInterceptors(FileInterceptor('file', {
-    fileFilter: fileFilter, 
-    limits: { fileSize: 1024 * 1024 * 10 }, // 10mb
-    storage: diskStorage({
-      destination: './static/documents/',
-      filename: fileNamer
-    })
-  }))
-  uploadGeneralFile(@UploadedFile() file: Express.Multer.File) {
-    if(!file) throw new BadRequestException('Make sure the file is a document(doc, docx, pdf)')
-    return this.filesService.uploadFile(file, this.hostApi);
+  // Get topic document id and url from uploadedBy id
+  @Get('student-document/:id')
+  @Auth(ValidRoles.asesor, ValidRoles.admin, ValidRoles.student, ValidRoles.titular_materia)
+  async getTopicDocumentByUploadedBy(
+    @Param('id', ParseUUIDPipe) id: string
+  ){
+    return this.filesService.getTopicDocumentByUploadedBy(id);
   }
 
   @Post('upload-topic')

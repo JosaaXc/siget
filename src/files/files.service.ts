@@ -34,6 +34,14 @@ export class FilesService {
     }
   }
 
+  async getTopicDocumentByUploadedBy( id: string ){
+    try {
+      return await this.topicDocumentRepository.findOneOrFail({ where: { uploadedBy: { id } } });
+    } catch (error) {
+      handleDBError(error);
+    }
+  }
+
   async uploadFile(file: Express.Multer.File, hostApi: string) {
     const secureUrl = `${ hostApi }/files/document/${ file.filename }`
     return secureUrl;
