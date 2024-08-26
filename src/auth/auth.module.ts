@@ -34,6 +34,6 @@ import { UserInformation } from '../user-information/entities/user-information.e
     }),
     EmailModule
   ],
-  exports: [ TypeOrmModule, JwtStrategy, PassportModule, JwtModule ]
+  exports: [ TypeOrmModule, JwtStrategy, PassportModule, JwtModule, AuthService ]
 })
 export class AuthModule {}

@@ -13,6 +13,7 @@ import { FilesModule } from './files/files.module';
 import { TopicDocumentCommentsModule } from './topic-document-comments/topic-document-comments.module';
 import { ScheduleModule } from './schedule/schedule.module';
 import { AdvisorySessionsModule } from './advisory-sessions/advisory-sessions.module';
+import { SeedModule } from './seed/seed.module';
 
 @Module({
   imports: [
@@ -39,6 +40,7 @@ import { AdvisorySessionsModule } from './advisory-sessions/advisory-sessions.mo
     TopicDocumentCommentsModule,
     ScheduleModule,
     AdvisorySessionsModule,
+    SeedModule,
   ],
 })
 export class AppModule {}
