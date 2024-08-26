@@ -14,6 +14,7 @@ import { TopicDocumentCommentsModule } from './topic-document-comments/topic-doc
 import { ScheduleModule } from './schedule/schedule.module';
 import { AdvisorySessionsModule } from './advisory-sessions/advisory-sessions.module';
 import { SeedModule } from './seed/seed.module';
+import { TopicReviewerModule } from './topic-reviewer/topic-reviewer.module';
 
 @Module({
   imports: [
@@ -41,6 +42,7 @@ import { SeedModule } from './seed/seed.module';
     ScheduleModule,
     AdvisorySessionsModule,
     SeedModule,
+    TopicReviewerModule,
   ],
 })
 export class AppModule {}
