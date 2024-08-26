@@ -1,6 +1,6 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { CreateUserDto, EmailToChangePasswordDto, LoginUserDto, ResetPasswordDto } from './dto';
+import { CreateUserDto, EmailToChangePasswordDto, LoginUserDto, ResetPasswordDto, UserWithRoleAndDegreeDto } from './dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { PaginationDto } from '../common/dtos/pagination.dto';
 import { Auth, GetUser } from './decorators';
@@ -45,6 +45,15 @@ export class AuthController {
     @Query() paginationDto: PaginationDto
   ) {
     return this.authService.getUsers(paginationDto);
+  }
+
+  @Post('users-with-role-and-degree')
+  @Auth()
+  getUsersWithRoleAndDegree(
+    @Query() paginationDto: PaginationDto,
+    @Body() userWithRoleAndDegreeDto: UserWithRoleAndDegreeDto
+  ) {
+    return this.authService.getUsersWithRoleAndDegree( paginationDto, userWithRoleAndDegreeDto );
   }
   
   @Get('users/:id')

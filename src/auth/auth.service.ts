@@ -4,7 +4,7 @@ import { User } from './entities/user.entity';
 import { Repository } from 'typeorm';
 
 import * as bcrypt from 'bcrypt';
-import { CreateUserDto, EmailToChangePasswordDto, LoginUserDto, ResetPasswordDto } from './dto';
+import { CreateUserDto, EmailToChangePasswordDto, LoginUserDto, ResetPasswordDto, UserWithRoleAndDegreeDto } from './dto';
 import { JwtPayload } from './interfaces/jwt-payload.interface';
 import { JwtService, JwtSignOptions } from '@nestjs/jwt';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -120,6 +120,33 @@ export class AuthService {
         skip: offset,
         take: limit,
       });
+  
+      const usersWithInformation = await Promise.all(users.map(async (user) => {
+        const userInformation = await this.userInformationRepository
+          .createQueryBuilder('userInformation')
+          .select(['userInformation.name', 'userInformation.fatherLastName', 'userInformation.motherLastName'])
+          .where('userInformation.userId = :userId', { userId: user.id })
+          .getOne();
+        return { ...user, userInformation };
+      }));
+  
+      return usersWithInformation;
+    } catch (error) {
+      handleDBError(error);
+    }
+  }
+
+  async getUsersWithRoleAndDegree(paginationDto: PaginationDto, userWithRoleAndDegreeDto: UserWithRoleAndDegreeDto) {
+    const { limit = 15, offset = 0 } = paginationDto;
+    const { role, degree } = userWithRoleAndDegreeDto;
+    try {
+      const users = await this.userRepository.createQueryBuilder('user')
+        .innerJoin('user.degreePrograms', 'degreeProgram')
+        .where('user.roles = :role', { role })
+        .andWhere('degreeProgram.id IN (:...degree)', { degree })
+        .skip(offset)
+        .take(limit)
+        .getMany();
   
       const usersWithInformation = await Promise.all(users.map(async (user) => {
         const userInformation = await this.userInformationRepository
