@@ -9,6 +9,7 @@ import { Repository } from 'typeorm';
 import { PaginationDto } from '../common/dtos/pagination.dto';
 import { ValidRoles } from '../auth/interfaces';
 import { ProposedByRole } from '../common/interfaces/proposed-by-role.interface';
+import { AuthService } from '../auth/auth.service';
 
 @Injectable()
 export class TopicService {
@@ -17,7 +18,9 @@ export class TopicService {
     @InjectRepository(Topic)
     private readonly topicRepository: Repository<Topic>,
     @InjectRepository(User)
-    private readonly userRepository: Repository<User>
+    private readonly userRepository: Repository<User>,
+
+    private readonly authService: AuthService
   ) {}
 
   async create(createTopicDto: CreateTopicDto, user: User) {
@@ -66,10 +69,11 @@ export class TopicService {
   }
 
   async findAllTopicsByRole(paginationDto:PaginationDto, user: User) {
+    const { userDegreePrograms } = await this.authService.getUser(user.id);
     const roles = user.roles; 
     if(roles.includes(ValidRoles.student)) 
-      return await this.findAsesorTopics(paginationDto);
-    return await this.findStudentsTopics(paginationDto);
+      return await this.findAsesorTopics(paginationDto, userDegreePrograms.map( dp => dp.id ));
+    return await this.findStudentsTopics(paginationDto, userDegreePrograms.map( dp => dp.id ));
   }
 
   async findOne(id: string) {
@@ -88,36 +92,41 @@ export class TopicService {
     }
   }
 
-  async findStudentsTopics(paginationDto: PaginationDto) {
+  async findStudentsTopics(paginationDto: PaginationDto, userDegreePrograms: string[]) {
     const { limit = 10, offset = 0 } = paginationDto;
     try {
-      return await this.topicRepository.find({ 
-        where: { proposedByRole: ProposedByRole.student },
-        relations: ['degreeProgram', 'graduationOption', 'proposedBy', 'collaborator'],
-        take: limit,
-        skip: offset
-      });
-
+      return await this.topicRepository.createQueryBuilder('topic')
+        .innerJoinAndSelect('topic.degreeProgram', 'degreeProgram')
+        .innerJoinAndSelect('topic.graduationOption', 'graduationOption')
+        .innerJoinAndSelect('topic.proposedBy', 'proposedBy')
+        .leftJoinAndSelect('topic.collaborator', 'collaborator')
+        .where('topic.proposedByRole = :proposedByRole', { proposedByRole: ProposedByRole.student })
+        .andWhere('degreeProgram.id IN (:...userDegreePrograms)', { userDegreePrograms })
+        .skip(offset)
+        .take(limit)
+        .getMany();
     } catch (error) {
       handleDBError(error);
     }
   }
 
-  async findAsesorTopics(paginationDto: PaginationDto) {
+  async findAsesorTopics(paginationDto: PaginationDto, userDegreePrograms: string[]) {
     const { limit = 10, offset = 0 } = paginationDto;
     try {
-      
-      return await this.topicRepository.find({ 
-        where: { proposedByRole: ProposedByRole.asesor },
-        relations: ['degreeProgram', 'graduationOption', 'proposedBy', 'collaborator'],
-        take: limit,
-        skip: offset
-      });
-
+      return await this.topicRepository.createQueryBuilder('topic')
+        .innerJoinAndSelect('topic.degreeProgram', 'degreeProgram')
+        .innerJoinAndSelect('topic.graduationOption', 'graduationOption')
+        .innerJoinAndSelect('topic.proposedBy', 'proposedBy')
+        .leftJoinAndSelect('topic.collaborator', 'collaborator')
+        .where('topic.proposedByRole = :proposedByRole', { proposedByRole: ProposedByRole.asesor })
+        .andWhere('degreeProgram.id IN (:...userDegreePrograms)', { userDegreePrograms })
+        .skip(offset)
+        .take(limit)
+        .getMany();
     } catch (error) {
       handleDBError(error);
     }
-  }
+}
 
   async update(id: string, updateTopicDto: UpdateTopicDto) {
     try {
