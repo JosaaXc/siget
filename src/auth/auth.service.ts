@@ -66,7 +66,9 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials(password)');
     
     delete user.password;
-    return this.getUser(user.id);
+    const token = this.getJwtToken({ id: user.id });
+    const userSearched = await this.getUser(user.id);
+    return { ...userSearched , token };
 
   }
 
@@ -103,6 +105,10 @@ export class AuthService {
 
   private getJwtToken(payload: JwtPayload, options?: JwtSignOptions) {
     return this.jwtService.sign(payload, options);
+  }
+
+  async refreshToken(user: User) {
+    return this.getUser(user.id);
   }
 
   async getUsers(paginationDto: PaginationDto) {
