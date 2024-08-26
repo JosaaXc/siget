@@ -1,9 +1,10 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe } from '@nestjs/common';
 import { GraduationOptionsService } from './graduation-options.service';
 import { CreateGraduationOptionDto } from './dto/create-graduation-option.dto';
+import { Auth } from '../auth/decorators';
 
 @Controller('graduation-options')
-//TODO: Add Auth decorator to the controller
+@Auth()
 export class GraduationOptionsController {
   constructor(private readonly graduationOptionsService: GraduationOptionsService) {}
 

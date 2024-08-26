@@ -108,7 +108,9 @@ export class AuthService {
   }
 
   async refreshToken(user: User) {
-    return this.getUser(user.id);
+    const token = this.getJwtToken({ id: user.id });
+    const userLocated = await this.getUser(user.id);
+    return { ...userLocated, token };
   }
 
   async getUsers(paginationDto: PaginationDto) {
