@@ -3,7 +3,7 @@ import { ValidRoles } from "src/auth/interfaces";
 
 export const USERS_SEED = [
     {
-        email: 'josafat719@gamil.com',
+        email: 'josafat719@gmail.com',
         password: 'Hola123',
         roles: [ValidRoles.student]
     },

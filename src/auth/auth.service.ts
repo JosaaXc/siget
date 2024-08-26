@@ -66,10 +66,7 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials(password)');
     
     delete user.password;
-    return {
-      ...user,
-      token: this.getJwtToken({ id: user.id }, { expiresIn: '1d'} )
-    }
+    return this.getUser(user.id);
 
   }
 
