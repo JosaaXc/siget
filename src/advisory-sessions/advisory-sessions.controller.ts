@@ -53,7 +53,7 @@ export class AdvisorySessionsController {
   }
 
   @Delete(':id')
-  @Auth( ValidRoles.asesor )
+  @Auth( ValidRoles.asesor, ValidRoles.student )
   remove(
     @Param('id', ParseUUIDPipe ) id: string
   ) {
