@@ -71,12 +71,23 @@ export class TopicRequestService {
 
       const topicRequestsWithUserInfo = await Promise.all(topicRequests.map(async (topicRequest) => {
         const userInformation = await this.userInformationRepository.findOne({ where: { user: { id: topicRequest.requestedBy.id } } });
+        
+        if (userInformation) {
+          delete userInformation.id;
+          delete userInformation.phoneNumber;
+          delete userInformation.address;
+        }
+
         delete topicRequest.requestedBy.email;
         delete topicRequest.requestedBy.roles;
-        delete userInformation.id;
-        delete userInformation.phoneNumber;
-        delete userInformation.address;
-        return { ...topicRequest, requestedBy: { ...topicRequest.requestedBy, userInformation } };
+
+        return { 
+          ...topicRequest, 
+          requestedBy: { 
+            ...topicRequest.requestedBy, 
+            userInformation: userInformation || {} 
+          } 
+        };
       }));
 
       if(topicRequestsWithUserInfo.length === 0)
@@ -84,7 +95,7 @@ export class TopicRequestService {
       return topicRequestsWithUserInfo;
     } catch (error) {
       handleDBError(error);
-    }
+    } 
   }
 
   async acceptMyPetitions(id: string, user: User) {

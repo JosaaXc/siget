@@ -9,36 +9,24 @@ export class TopicDocument{
   @PrimaryGeneratedColumn('uuid')
   id: string; 
 
-  @OneToOne(() => AcceptedTopic, { onDelete: 'CASCADE' })
+  @OneToOne(() => AcceptedTopic, { onDelete: 'CASCADE', nullable: false })
   @JoinColumn({ name: 'acceptedTopic'})
   acceptedTopic: AcceptedTopic
 
   @Column('text', { nullable: false })
   url: string; 
 
-  @OneToOne(() => User, { onDelete: 'CASCADE' })
+  @OneToOne(() => User, { onDelete: 'CASCADE', nullable: false })
   @JoinColumn({ name: 'uploadedBy'})
   uploadedBy: User;
 
-  @Column('bool', { default: false })
-  chapter1: boolean;
-  
-  @Column('bool', { default: false })
-  chapter2: boolean;
-  
-  @Column('bool', { default: false })
-  chapter3: boolean;
-  
-  @Column('bool', { default: false })
-  chapter4: boolean;
-  
-  @Column('bool', { default: false })
-  chapter5: boolean;
-  
-  @Column('bool', { default: false })
-  chapter6: boolean;
-  
-  @Column('bool', { default: false })
-  chapter7: boolean;
+  @Column('timestamp', { default: () => 'CURRENT_TIMESTAMP' })
+  uploadedAt: Date;
+
+  @Column('timestamp', { default: () => 'CURRENT_TIMESTAMP' })
+  updatedAt: Date;
+
+  @Column('int', { nullable: false, default: 0 })
+  chapters: number;
 
 }
