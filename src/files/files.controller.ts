@@ -41,10 +41,10 @@ export class FilesController {
   // Get topic document id and url from uploadedBy id
   @Get('student-document/:id')
   @Auth(ValidRoles.asesor, ValidRoles.admin, ValidRoles.student, ValidRoles.titular_materia)
-  async getTopicDocumentByUploadedBy(
+  async getTopicDocumentByAcceptedTopic(
     @Param('id', ParseUUIDPipe) id: string
   ){
-    return this.filesService.getTopicDocumentByUploadedBy(id);
+    return this.filesService.getTopicDocumentByAcceptedTopic(id);
   }
 
   @Post('upload-topic')

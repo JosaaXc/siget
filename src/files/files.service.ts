@@ -34,9 +34,9 @@ export class FilesService {
     }
   }
 
-  async getTopicDocumentByUploadedBy( id: string ){
+  async getTopicDocumentByAcceptedTopic( id: string ){
     try {
-      return await this.topicDocumentRepository.findOneOrFail({ where: { uploadedBy: { id } } });
+      return await this.topicDocumentRepository.findOneOrFail({ where: { acceptedTopic: { id } } });
     } catch (error) {
       handleDBError(error);
     }
