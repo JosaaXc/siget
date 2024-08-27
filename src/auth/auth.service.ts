@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable, InternalServerErrorException, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
-import { Repository } from 'typeorm';
+import { Not, Repository } from 'typeorm';
 
 import * as bcrypt from 'bcrypt';
 import { CreateUserDto, EmailToChangePasswordDto, LoginUserDto, ResetPasswordDto, UserWithRoleAndDegreeDto } from './dto';
@@ -113,54 +113,49 @@ export class AuthService {
     return { ...userLocated, token };
   }
 
-  async getUsers(paginationDto: PaginationDto) {
+  async getUsers(paginationDto: PaginationDto, user: User) {
     try {
       const { limit = 15 , offset = 0 } = paginationDto;
       const users = await this.userRepository.find({
+        where: { id: Not(user.id) },
         skip: offset,
         take: limit,
       });
-  
-      const usersWithInformation = await Promise.all(users.map(async (user) => {
-        const userInformation = await this.userInformationRepository
-          .createQueryBuilder('userInformation')
-          .select(['userInformation.name', 'userInformation.fatherLastName', 'userInformation.motherLastName'])
-          .where('userInformation.userId = :userId', { userId: user.id })
-          .getOne();
-        return { ...user, userInformation };
-      }));
-  
-      return usersWithInformation;
+      return await this.getUsersInformation(users);
     } catch (error) {
       handleDBError(error);
     }
   }
 
-  async getUsersWithRoleAndDegree(paginationDto: PaginationDto, userWithRoleAndDegreeDto: UserWithRoleAndDegreeDto) {
+  async getUsersWithRoleAndDegree(paginationDto: PaginationDto, userWithRoleAndDegreeDto: UserWithRoleAndDegreeDto, user: User) {
     const { limit = 15, offset = 0 } = paginationDto;
     const { role, degree } = userWithRoleAndDegreeDto;
     try {
       const users = await this.userRepository.createQueryBuilder('user')
         .innerJoin('user.degreePrograms', 'degreeProgram')
-        .where('user.roles = :role', { role })
+        .where(':role = ANY(user.roles)', { role })
         .andWhere('degreeProgram.id IN (:...degree)', { degree })
+        .andWhere('user.id != :userId', { userId: user.id }) // Excluir al usuario actual
         .skip(offset)
         .take(limit)
         .getMany();
-  
-      const usersWithInformation = await Promise.all(users.map(async (user) => {
-        const userInformation = await this.userInformationRepository
-          .createQueryBuilder('userInformation')
-          .select(['userInformation.name', 'userInformation.fatherLastName', 'userInformation.motherLastName'])
-          .where('userInformation.userId = :userId', { userId: user.id })
-          .getOne();
-        return { ...user, userInformation };
-      }));
-  
-      return usersWithInformation;
+
+      return await this.getUsersInformation(users);
     } catch (error) {
       handleDBError(error);
     }
+  }
+
+  async getUsersInformation(users: User[]) {
+    const usersWithInformation = await Promise.all(users.map(async (user) => {
+      const userInformation = await this.userInformationRepository
+        .createQueryBuilder('userInformation')
+        .select(['userInformation.name', 'userInformation.fatherLastName', 'userInformation.motherLastName'])
+        .where('userInformation.userId = :userId', { userId: user.id })
+        .getOne();
+      return { ...user, userInformation };
+    }));
+    return usersWithInformation;
   }
 
   async getUser(id: string) {

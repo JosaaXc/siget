@@ -8,6 +8,6 @@ export class UserWithRoleAndDegreeDto {
 
     @IsArray()
     @IsUUID("4", { each: true })
-    degree: string[];
+    degree: string
 
 }

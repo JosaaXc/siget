@@ -22,6 +22,12 @@ export function handleDBError(error: any): never {
 
   if (error instanceof JsonWebTokenError) 
     throw new UnauthorizedException('Invalid token');
+
+  if( error.code === '22P02')
+    throw new BadRequestException(error.detail);
+
+  if(error.code === '42883')
+    throw new BadRequestException(error.detail);
   
   console.log(error);
   throw new InternalServerErrorException('Something went wrong');

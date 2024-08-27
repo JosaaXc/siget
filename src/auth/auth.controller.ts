@@ -42,18 +42,20 @@ export class AuthController {
   @Get('users')
   @Auth()
   getUsers(
-    @Query() paginationDto: PaginationDto
+    @Query() paginationDto: PaginationDto,
+    @GetUser() user: User
   ) {
-    return this.authService.getUsers(paginationDto);
+    return this.authService.getUsers(paginationDto, user);
   }
 
   @Post('users-with-role-and-degree')
   @Auth()
   getUsersWithRoleAndDegree(
     @Query() paginationDto: PaginationDto,
-    @Body() userWithRoleAndDegreeDto: UserWithRoleAndDegreeDto
+    @Body() userWithRoleAndDegreeDto: UserWithRoleAndDegreeDto,
+    @GetUser() user: User
   ) {
-    return this.authService.getUsersWithRoleAndDegree( paginationDto, userWithRoleAndDegreeDto );
+    return this.authService.getUsersWithRoleAndDegree( paginationDto, userWithRoleAndDegreeDto, user );
   }
   
   @Get('users/:id')
