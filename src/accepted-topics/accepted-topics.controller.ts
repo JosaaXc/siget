@@ -1,9 +1,10 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, ParseUUIDPipe } from '@nestjs/common';
+import { Controller, Get, Param, Delete, Query, ParseUUIDPipe, Post, Body } from '@nestjs/common';
 import { AcceptedTopicsService } from './accepted-topics.service';
 import { PaginationDto } from '../common/dtos/pagination.dto';
 import { Auth, GetUser } from '../auth/decorators';
 import { User } from '../auth/entities/user.entity';
 import { ValidRoles } from '../auth/interfaces';
+import { DegreeProgramDto } from './dto/degree-program.dto';
 
 @Controller('accepted-topics')
 export class AcceptedTopicsController {
@@ -20,10 +21,14 @@ export class AcceptedTopicsController {
 
 
   // get all users with role student that have not been accepted
-  @Get('students')
+  @Post('students')
   @Auth()
-  findStudents() {
-    return this.acceptedTopicsService.findStudents();
+  findStudents(
+    @GetUser() user: User,
+    @Query() paginationDto: PaginationDto,
+    @Body() degreeProgramDto: DegreeProgramDto
+  ) {
+    return this.acceptedTopicsService.findStudents( user, paginationDto, degreeProgramDto );
   }
 
   @Get(':id')

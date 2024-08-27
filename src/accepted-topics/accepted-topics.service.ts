@@ -7,6 +7,7 @@ import { AcceptedTopic } from './entities/accepted-topic.entity';
 import { Repository } from 'typeorm';
 import { UserInformation } from '../user-information/entities/user-information.entity';
 import { ValidRoles } from 'src/auth/interfaces';
+import { DegreeProgramDto } from './dto/degree-program.dto';
 
 @Injectable()
 export class AcceptedTopicsService {
@@ -75,27 +76,35 @@ export class AcceptedTopicsService {
     }
   }
 
-  async findStudents() {
+  async findStudents(user: User, paginationDto: PaginationDto, degreeProgramDto: DegreeProgramDto) {
+    const { limit = 15, offset = 0 } = paginationDto; 
+    const { degree } = degreeProgramDto;
     try {
-      
       const studentsIds = await this.userRepository.createQueryBuilder('user')
         .select('user.id')
+        .innerJoin('user.degreePrograms', 'degreeProgram')
         .where(':role = ANY(user.roles)', { role: ValidRoles.student })
+        .andWhere('user.id != :userId', { userId: user.id })
+        .andWhere('degreeProgram.id IN (:...degree)', { degree })
+        .limit(limit)
+        .skip(offset)
         .getMany();
-
+  
       const acceptedTopicIds = await this.acceptedTopicRepository.createQueryBuilder('acceptedTopic')
         .select(['acceptedTopic.id', 'requestedBy.id', 'collaborator.id', 'acceptedBy.id']) // Modificado para seleccionar solo los ids
         .leftJoin('acceptedTopic.requestedBy', 'requestedBy')
         .leftJoin('acceptedTopic.collaborator', 'collaborator')
         .leftJoin('acceptedTopic.acceptedBy', 'acceptedBy')
         .getMany();
-
+  
       const students = studentsIds.filter(student => {
         return !acceptedTopicIds.some(acceptedTopic => {
-          return acceptedTopic.requestedBy.id === student.id || acceptedTopic.collaborator.id === student.id || acceptedTopic.acceptedBy.id === student.id;
+          return (acceptedTopic.requestedBy && acceptedTopic.requestedBy.id === student.id) ||
+                 (acceptedTopic.collaborator && acceptedTopic.collaborator.id === student.id) ||
+                 (acceptedTopic.acceptedBy && acceptedTopic.acceptedBy.id === student.id);
         });
       });
-
+  
       const studentsWithUserInformation = await Promise.all(students.map(async (student) => {
         const userInformation = await this.userInformationRepository.createQueryBuilder("userInformation")
           .innerJoin("userInformation.user", "user", "user.id = :id", { id: student.id })
@@ -103,10 +112,9 @@ export class AcceptedTopicsService {
           .getOne();
       
         return { ...student, userInformation };
-      }
-      ));
+      }));
       return studentsWithUserInformation;
-
+  
     } catch (error) {
       handleDBError(error);
     }
