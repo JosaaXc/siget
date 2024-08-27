@@ -30,6 +30,7 @@ export class AcceptedTopicsService {
         .leftJoinAndSelect('acceptedTopic.requestedBy', 'requestedBy')
         .leftJoinAndSelect('acceptedTopic.collaborator', 'collaborator')
         .leftJoinAndSelect('acceptedTopic.acceptedBy', 'acceptedBy')
+        .leftJoinAndSelect('acceptedTopic.graduationOption', 'graduationOption')
         .skip(offset)
         .take(limit)
   
