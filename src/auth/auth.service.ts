@@ -66,10 +66,10 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials(password)');
     
     delete user.password;
-    const token = this.getJwtToken({ id: user.id });
+    const token = this.getJwtToken({ id: user.id }, { expiresIn: '1d' });
     const userSearched = await this.getUser(user.id);
     return { ...userSearched , token };
-
+    
   }
 
   async forgotPassword({email}: EmailToChangePasswordDto){
@@ -108,7 +108,7 @@ export class AuthService {
   }
 
   async refreshToken(user: User) {
-    const token = this.getJwtToken({ id: user.id });
+    const token = this.getJwtToken({ id: user.id }, { expiresIn: '1d' });
     const userLocated = await this.getUser(user.id);
     return { ...userLocated, token };
   }
