@@ -69,7 +69,7 @@ export class FilesController {
     return this.filesService.saveTopicDocument( acceptedTopicId, secureUrl, user );
   }
 
-  @Post('update-topic')
+  @Patch('update-topic')
   @Auth(ValidRoles.student)
   @UseInterceptors(FileInterceptor('file', {
     fileFilter: fileFilter, 

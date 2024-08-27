@@ -65,10 +65,14 @@ export class FilesService {
 
   async updateTopicDocument( topicDocument: string , secureUrl: string){
     try {
-
-      await this.topicDocumentRepository.update( topicDocument, { url: secureUrl });
+      await this.topicDocumentRepository.update( 
+        topicDocument, 
+        { 
+          url: secureUrl,
+          updatedAt: new Date()
+        }
+      );
       return await this.topicDocumentRepository.findOneOrFail({ where: { id: topicDocument }});
-
     } catch (error) {
       handleDBError(error);
     }
