@@ -7,10 +7,7 @@ import { User } from '../auth/entities/user.entity';
 import { UserInformation } from '../user-information/entities/user-information.entity';
 import { PaginationDto } from '../common/dtos/pagination.dto';
 import { CreateScheduleDto, RequestStatusDto, UpdateScheduleDto } from './dto';
-import { Cron } from '@nestjs/schedule';
-
-
-const EVERY_DAY_AT_6_15_PM = '15 18 * * *';
+import { Cron, CronExpression } from '@nestjs/schedule';
 
 @Injectable()
 export class ScheduleService {
@@ -302,7 +299,7 @@ export class ScheduleService {
     }
   }
 
-  @Cron(EVERY_DAY_AT_6_15_PM) // Ejecutar todos los días a las 6:15 PM
+  @Cron(CronExpression.EVERY_DAY_AT_3PM) // Execute every day at 3pm
   async deletePastSchedules(): Promise<void> {
     const currentDateTime = new Date();
     console.log('Deleting past schedules');
