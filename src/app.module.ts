@@ -11,7 +11,7 @@ import { TopicRequestModule } from './topic-request/topic-request.module';
 import { AcceptedTopicsModule } from './accepted-topics/accepted-topics.module';
 import { FilesModule } from './files/files.module';
 import { TopicDocumentCommentsModule } from './topic-document-comments/topic-document-comments.module';
-import { ScheduleModule } from './schedule/schedule.module';
+import { ScheduleModulee } from './schedule/schedule.module';
 import { AdvisorySessionsModule } from './advisory-sessions/advisory-sessions.module';
 import { SeedModule } from './seed/seed.module';
 import { TopicReviewerModule } from './topic-reviewer/topic-reviewer.module';
@@ -39,7 +39,7 @@ import { TopicReviewerModule } from './topic-reviewer/topic-reviewer.module';
     AcceptedTopicsModule,
     FilesModule,
     TopicDocumentCommentsModule,
-    ScheduleModule,
+    ScheduleModulee,
     AdvisorySessionsModule,
     SeedModule,
     TopicReviewerModule,

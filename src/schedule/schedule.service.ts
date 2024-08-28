@@ -7,6 +7,10 @@ import { User } from '../auth/entities/user.entity';
 import { UserInformation } from '../user-information/entities/user-information.entity';
 import { PaginationDto } from '../common/dtos/pagination.dto';
 import { CreateScheduleDto, RequestStatusDto, UpdateScheduleDto } from './dto';
+import { Cron } from '@nestjs/schedule';
+
+
+const EVERY_DAY_AT_6_15_PM = '15 18 * * *';
 
 @Injectable()
 export class ScheduleService {
@@ -49,12 +53,17 @@ export class ScheduleService {
       const requester = await this.getUserInformation(user.id);
       const inviteeInfo = await this.getUserInformation(invitee);
       const participantsInfo = await this.getParticipantsInformation(participants);
+
+      const participantsWithIds = participants.map((participantId, index) => ({
+        id: participantId,
+        ...participantsInfo[index],
+      }));
       
       return {
         ...savedSchedule,
         requester: requester,
         invitee: inviteeInfo,
-        participants: participantsInfo,
+        participants: participantsWithIds,
       };
       
     } catch (error) {
@@ -282,14 +291,6 @@ export class ScheduleService {
     }
   }
 
-  async update(id: string, updateScheduleDto: UpdateScheduleDto) {
-    try {
-      return { message : 'Esta mierda no se puede jejeej'}
-    } catch (error) {
-      handleDBError(error);
-    }
-  }
-
   async rejectSchedule(id: string,  user: User) {
     const schedule = await this.findOneSchedule(id);
     if(schedule.invitee.id !== user.id) throw new BadRequestException('You are not the invitee of this schedule');
@@ -299,5 +300,19 @@ export class ScheduleService {
     } catch (error) {
       handleDBError(error);
     }
+  }
+
+  @Cron(EVERY_DAY_AT_6_15_PM) // Ejecutar todos los días a las 6:15 PM
+  async deletePastSchedules(): Promise<void> {
+    const currentDateTime = new Date();
+    console.log('Deleting past schedules');
+    await this.scheduleRepository.createQueryBuilder()
+      .delete()
+      .from(Schedule)
+      .where('date < :currentDate OR (date = :currentDate AND time < :currentTime)', {
+        currentDate: currentDateTime.toISOString().split('T')[0],
+        currentTime: currentDateTime.toTimeString().split(' ')[0],
+      })
+      .execute();
   }
 }

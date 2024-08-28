@@ -58,14 +58,6 @@ export class ScheduleController {
     return this.scheduleService.findOne(id);
   }
 
-  @Patch(':id')
-  update(
-    @Param('id', ParseUUIDPipe ) id: string,
-    @Body() updateScheduleDto: UpdateScheduleDto,
-  ) {
-    return this.scheduleService.update(id, updateScheduleDto);
-  }
-
   @Patch(':id/accept')
   accept(
     @Param('id', ParseUUIDPipe ) id: string,
