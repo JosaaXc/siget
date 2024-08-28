@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { PaginationDto } from '../common/dtos/pagination.dto';
 import { User } from '../auth/entities/user.entity';
 import { handleDBError } from '../common/errors/handleDBError.errors';
@@ -8,6 +8,7 @@ import { Repository } from 'typeorm';
 import { UserInformation } from '../user-information/entities/user-information.entity';
 import { ValidRoles } from 'src/auth/interfaces';
 import { DegreeProgramDto } from './dto/degree-program.dto';
+import { UpdateAcceptedTopicDto } from './dto/update-accepted-topic.dto';
 
 @Injectable()
 export class AcceptedTopicsService {
@@ -118,6 +119,22 @@ export class AcceptedTopicsService {
     } catch (error) {
       handleDBError(error);
     }
+  }
+
+  async update(id: string, updateAcceptedTopicDto: UpdateAcceptedTopicDto) {
+    const { title, description, graduationOption } = updateAcceptedTopicDto;
+    const currentTopic = await this.findOne(id);
+    const updatedTopic = {
+      title: title !== undefined ? title : currentTopic.title,
+      description: description !== undefined ? description : currentTopic.description,
+      graduationOption: graduationOption !== undefined ? { id: graduationOption } : currentTopic.graduationOption,
+    };
+  
+    const result = await this.acceptedTopicRepository.update(id, updatedTopic);
+    if (result.affected === 0) 
+      throw new NotFoundException('Accepted Topic not found');
+  
+    return this.findOne(id);
   }
 
   async remove(id: string) {
