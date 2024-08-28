@@ -299,7 +299,10 @@ export class ScheduleService {
     }
   }
 
-  @Cron(CronExpression.EVERY_DAY_AT_3PM) // Execute every day at 3pm
+  @Cron(CronExpression.EVERY_DAY_AT_3PM, {
+    name: 'delete_past_schedules',
+    timeZone: 'America/Mexico_City',
+  }) // Execute every day at 3pm on Mexico City timezone
   async deletePastSchedules(): Promise<void> {
     const currentDateTime = new Date();
     console.log('Deleting past schedules');
