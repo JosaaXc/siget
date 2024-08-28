@@ -28,6 +28,9 @@ import { TopicReviewerModule } from './topic-reviewer/topic-reviewer.module';
       password: process.env.DB_PASSWORD,
       autoLoadEntities: true, // models will be loaded automatically (you don't need to explicitly define them)
       synchronize: true,
+      extra: {
+        options: '-c timezone=America/Mexico_City',
+      }
     }),
     CommonModule,
     AuthModule,
