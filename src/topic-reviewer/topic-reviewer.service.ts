@@ -119,7 +119,7 @@ export class TopicReviewerService {
             id: topic.topicId.id,
             title: topic.topicId.title,
             description: topic.topicId.description,
-            graduationOpton: topic.topicId.graduationOption,
+            graduationOption: topic.topicId.graduationOption,
             proposedByRole: topic.topicId.proposedByRole,
             requestedBy: {
               id: topic.topicId.requestedBy.id,
