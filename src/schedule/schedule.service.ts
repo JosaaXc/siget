@@ -14,9 +14,9 @@ export class ScheduleService {
 
   constructor(
     @InjectRepository(Schedule)
-    private scheduleRepository: Repository<Schedule>,
+    private readonly scheduleRepository: Repository<Schedule>,
     @InjectRepository(UserInformation)
-    private userInformationRepository: Repository<UserInformation>,
+    private readonly userInformationRepository: Repository<UserInformation>,
   ) {}
 
   private async getUserInformation(userId: string) {
