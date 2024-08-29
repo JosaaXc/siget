@@ -38,8 +38,11 @@ export class TopicReviewerController {
 
   @Get('by-reviewer/:reviewerId')
   @Auth()
-  findByReviewer(@Param('reviewerId', ParseUUIDPipe ) reviewerId: string) {
-    return this.topicReviewerService.findByReviewer(reviewerId);
+  findByReviewer(
+    @Query() paginationDto: PaginationDto,
+    @Param('reviewerId', ParseUUIDPipe ) reviewerId: string
+  ) {
+    return this.topicReviewerService.findByReviewer(reviewerId, paginationDto);
   }
 
   @Patch(':id')

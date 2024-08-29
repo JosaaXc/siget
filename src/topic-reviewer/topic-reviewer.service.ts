@@ -99,9 +99,13 @@ export class TopicReviewerService {
     }
   }
 
-  async findByReviewer(reviewerId: string) {
+  async findByReviewer(reviewerId: string, paginationDto: PaginationDto) {
     try {
-      const topics = await this.topicReviewerRepository.find({ where: { reviewerId: { id: reviewerId } } });
+      const topics = await this.topicReviewerRepository.find({ 
+        where: { reviewerId: { id: reviewerId } },
+        skip: paginationDto.offset,
+        take: paginationDto.limit,
+      });
       const reviewerInformation = await this.getUserInformation(reviewerId);
       return await Promise.all(topics.map(async topic => {
         const requestByInfo = await this.getUserInformation(topic.topicId.requestedBy.id);
