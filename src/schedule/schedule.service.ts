@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Schedule } from './entities/schedule.entity';
 import { Repository } from 'typeorm';
@@ -11,6 +11,8 @@ import { Cron, CronExpression } from '@nestjs/schedule';
 
 @Injectable()
 export class ScheduleService {
+
+  logger = new Logger('ScheduleService');
 
   constructor(
     @InjectRepository(Schedule)
@@ -305,7 +307,7 @@ export class ScheduleService {
   }) // Execute every day at 3pm on Mexico City timezone
   async deletePastSchedules(): Promise<void> {
     const currentDateTime = new Date();
-    console.log('Deleting past schedules');
+    this.logger.log('Deleting past schedules');
     await this.scheduleRepository.createQueryBuilder()
       .delete()
       .from(Schedule)
