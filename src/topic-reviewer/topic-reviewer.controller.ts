@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe, Query } from '@nestjs/common';
 import { TopicReviewerService } from './topic-reviewer.service';
 import { CreateTopicReviewerDto } from './dto/create-topic-reviewer.dto';
 import { UpdateTopicReviewerDto } from './dto/update-topic-reviewer.dto';
@@ -12,13 +12,15 @@ export class TopicReviewerController {
 
   @Post()
   @Auth(ValidRoles.titular_materia)
-  create(@Body() createTopicReviewerDto: CreateTopicReviewerDto) {
+  create(
+    @Body() createTopicReviewerDto: CreateTopicReviewerDto,
+  ) {
     return this.topicReviewerService.create(createTopicReviewerDto);
   }
 
   @Get()
   @Auth()
-  findAll( paginationDto: PaginationDto) {
+  findAll( @Query() paginationDto: PaginationDto) {
     return this.topicReviewerService.findAll( paginationDto );
   }
 
