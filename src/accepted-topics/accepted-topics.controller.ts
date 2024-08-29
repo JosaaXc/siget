@@ -20,9 +20,17 @@ export class AcceptedTopicsController {
     return this.acceptedTopicsService.findAll( paginationDto, user ); 
   }
 
+  @Post('get-by-degree-program')
+  @Auth(ValidRoles.titular_materia)
+  create(
+    @Body() degreeProgramDto: DegreeProgramDto
+  ) {
+    return this.acceptedTopicsService.findByDegreeProgram( degreeProgramDto );
+  }
+
   // get all users with role student that have not been accepted
   @Post('students')
-  @Auth()
+  @Auth(ValidRoles.student)
   findStudents(
     @GetUser() user: User,
     @Query() paginationDto: PaginationDto,
@@ -32,6 +40,7 @@ export class AcceptedTopicsController {
   }
 
   @Get(':id')
+  @Auth(ValidRoles.student, ValidRoles.asesor, ValidRoles.titular_materia)
   findOne(
     @Param('id', ParseUUIDPipe) id: string
   ) {
