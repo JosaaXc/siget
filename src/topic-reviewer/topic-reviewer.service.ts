@@ -103,12 +103,35 @@ export class TopicReviewerService {
     try {
       const topics = await this.topicReviewerRepository.find({ where: { reviewerId: { id: reviewerId } } });
       const reviewerInformation = await this.getUserInformation(reviewerId);
-      return topics.map(topic => ({
-        id: topic.id,
-        topicId: topic.topicId.id,
-        reviewerId: {
-          id: reviewerId,
-          ...reviewerInformation
+      return await Promise.all(topics.map(async topic => {
+        const requestByInfo = await this.getUserInformation(topic.topicId.requestedBy.id);
+        const acceptedByInfo = await this.getUserInformation(topic.topicId.acceptedBy.id);
+        let collaboratorInfo = null;
+        if(topic.topicId.collaborator) 
+          collaboratorInfo = await this.getUserInformation(topic.topicId.collaborator.id);
+
+        return {
+          topic: {
+            id: topic.topicId.id,
+            title: topic.topicId.title,
+            description: topic.topicId.description,
+            requestedBy: {
+              id: topic.topicId.requestedBy.id,
+              ...requestByInfo
+            },
+            acceptedBy: {
+              id: topic.topicId.acceptedBy.id,
+              ...acceptedByInfo
+            },
+            collaborator: topic.topicId.collaborator ? {
+              id: topic.topicId.collaborator.id,
+              ...collaboratorInfo
+            } : null,
+          },
+          reviewerId: {
+            id: topic.reviewerId.id,
+            ...reviewerInformation
+          }
         }
       }));
     } catch (error) {

@@ -1,8 +1,9 @@
-import { Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, Unique } from "typeorm";
 import { AcceptedTopic } from "../../accepted-topics/entities/accepted-topic.entity";
 import { User } from "../../auth/entities/user.entity";
 
 @Entity({ name: 'topic_reviewers' })
+@Unique(['topicId', 'reviewerId'])
 export class TopicReviewer {
 
     @PrimaryGeneratedColumn('uuid')
