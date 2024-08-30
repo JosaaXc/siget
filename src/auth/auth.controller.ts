@@ -23,7 +23,6 @@ export class AuthController {
   }
 
   @Post('forgot-password')
-  @Auth()
   async forgotPassword(
     @Body() emailToChangePasswordDto: EmailToChangePasswordDto
   ) {
@@ -31,7 +30,6 @@ export class AuthController {
   }
 
   @Patch('reset-password/:token')
-  @Auth()
   async resetPassword(
     @Body() resetPasswordDto: ResetPasswordDto,
     @Param('token') token: string
