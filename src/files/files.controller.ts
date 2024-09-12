@@ -1,4 +1,4 @@
-import { BadRequestException, Body, Controller, Get, Param, ParseIntPipe, ParseUUIDPipe, Patch, Post, Query, Req, Res, UploadedFile, UseInterceptors } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Get, Param, ParseIntPipe, ParseUUIDPipe, Patch, Post, Put, Query, Req, Res, UploadedFile, UseInterceptors } from '@nestjs/common';
 import { FilesService } from './files.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
@@ -69,7 +69,7 @@ export class FilesController {
     return this.filesService.saveTopicDocument( acceptedTopicId, secureUrl, user );
   }
 
-  @Patch('update-topic')
+  @Put('update-topic')
   @Auth(ValidRoles.student)
   @UseInterceptors(FileInterceptor('file', {
     fileFilter: fileFilter, 
