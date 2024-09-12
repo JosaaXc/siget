@@ -2,8 +2,8 @@ import { BadRequestException, Body, Controller, Get, Param, ParseIntPipe, ParseU
 import { FilesService } from './files.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
-import { fileFilter, studentFileNamer } from './helpers';
-import { Response, Request } from 'express'; // Add Request import
+import { fileFilter, studentFileNamer, updateFileNamer } from './helpers';
+import { Response } from 'express'; // Add Request import
 import { ConfigService } from '@nestjs/config';
 import { Auth, GetUser } from '../auth/decorators';
 import { User } from '../auth/entities/user.entity';
@@ -54,19 +54,17 @@ export class FilesController {
     limits: { fileSize: 1024 * 1024 * 10 }, // 10mb
     storage: diskStorage({
       destination: './static/documents/',
-      filename: studentFileNamer // Aquí se usa el ID del estudiante
+      filename: studentFileNamer // Aquí se usa el ID del accepted topic
     })
   }))
   async uploadStudentFile(
     @GetUser() user: User,
     @UploadedFile() file: Express.Multer.File,
-    @Req() req: Request,
-    @Query('acceptedTopicId', ParseUUIDPipe ) acceptedTopicId: string
+    @Query('acceptedTopicId', ParseUUIDPipe) acceptedTopicId: string
   ) {
-    req.user = user;
-    if(!file) throw new BadRequestException('Make sure the file is a document(doc, docx, pdf)')
+    if (!file) throw new BadRequestException('Make sure the file is a document(doc, docx, pdf)');
     const secureUrl = await this.filesService.uploadFile(file, this.hostApi);
-    return this.filesService.saveTopicDocument( acceptedTopicId, secureUrl, user );
+    return this.filesService.saveTopicDocument(acceptedTopicId, secureUrl, user);
   }
 
   @Put('update-topic')
@@ -76,19 +74,16 @@ export class FilesController {
     limits: { fileSize: 1024 * 1024 * 10 }, // 10mb
     storage: diskStorage({
       destination: './static/documents/',
-      filename: studentFileNamer // Aquí se usa el ID del estudiante
+      filename: updateFileNamer // Aquí se usa el ID del topic document
     })
   }))
   async updateStudentFile(
-    @GetUser() user: User,
     @UploadedFile() file: Express.Multer.File,
-    @Req() req: Request,
-    @Query('topic-document', ParseUUIDPipe ) topicDocument: string
+    @Query('topic-document', ParseUUIDPipe) topicDocument: string
   ) {
-    req.user = user;
-    if(!file) throw new BadRequestException('Make sure the file is a document(doc, docx, pdf)')
+    if (!file) throw new BadRequestException('Make sure the file is a document(doc, docx, pdf)');
     const secureUrl = await this.filesService.uploadFile(file, this.hostApi);
-    return this.filesService.updateTopicDocument( topicDocument, secureUrl );
+    return this.filesService.updateTopicDocument(topicDocument, secureUrl);
   }
 
   @Patch('complete-chapter/:id')
