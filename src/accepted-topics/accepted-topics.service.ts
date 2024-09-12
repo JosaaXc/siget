@@ -6,9 +6,10 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { AcceptedTopic } from './entities/accepted-topic.entity';
 import { Repository } from 'typeorm';
 import { UserInformation } from '../user-information/entities/user-information.entity';
-import { ValidRoles } from 'src/auth/interfaces';
+import { ValidRoles } from '../auth/interfaces';
 import { DegreeProgramDto } from './dto/degree-program.dto';
 import { UpdateAcceptedTopicDto } from './dto/update-accepted-topic.dto';
+import { FinishedTopic } from '../finished-topics/entities/finished-topic.entity';
 
 @Injectable()
 export class AcceptedTopicsService {
@@ -20,6 +21,9 @@ export class AcceptedTopicsService {
     private readonly userInformationRepository: Repository<UserInformation>,
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
+    @InjectRepository(FinishedTopic)
+    private finishedTopicRepository: Repository<FinishedTopic>,
+
   ) {}
 
   async findAll({ limit = 10, offset = 0 }: PaginationDto, { id }: User) {
@@ -182,6 +186,26 @@ export class AcceptedTopicsService {
     if(result.affected === 0) handleDBError(new Error('Accepted Topic not found'));
     return {
       message: 'Accepted Topic deleted successfully'
+    }
+  }
+
+  async finishTopic(id: string) {
+    const acceptedTopic = await this.findOne(id);
+    const finishedTopic = this.finishedTopicRepository.create({
+      id: acceptedTopic.id,
+      title: acceptedTopic.title,
+      description: acceptedTopic.description,
+      degreeProgram: acceptedTopic.degreeProgram,
+      graduationOption: acceptedTopic.graduationOption,
+      proposedByRole: acceptedTopic.proposedByRole,
+      acceptedBy: acceptedTopic.acceptedBy,
+      collaborator: acceptedTopic.collaborator,
+      requestedBy: acceptedTopic.requestedBy
+    });
+    await this.finishedTopicRepository.save(finishedTopic);
+    await this.remove(id);
+    return {
+      message: 'El tema se ha finalizado exitosamente'
     }
   }
 }

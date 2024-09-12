@@ -47,6 +47,14 @@ export class AcceptedTopicsController {
     return this.acceptedTopicsService.findOne(id);
   }
 
+  @Post('finish-topic/:id')
+  @Auth(ValidRoles.student, ValidRoles.asesor)
+  finishTopic(
+    @Param('id', ParseUUIDPipe) id: string,
+  ) {
+    return this.acceptedTopicsService.finishTopic(id);
+  }
+
   @Patch(':id')
   @Auth(ValidRoles.student)
   update(
