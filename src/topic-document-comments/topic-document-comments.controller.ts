@@ -1,9 +1,10 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, Query, ParseUUIDPipe } from '@nestjs/common';
 import { TopicDocumentCommentsService } from './topic-document-comments.service';
-import { Auth } from '../auth/decorators';
+import { Auth, GetUser } from '../auth/decorators';
 import { ValidRoles } from '../auth/interfaces';
 import { PaginationDto } from '../common/dtos/pagination.dto';
-import { CreateTopicDocumentCommentDto, GetAllCommentsDto, UpdateTopicDocumentCommentDto } from './dto';
+import { CreateTopicDocumentCommentDto, GetAllCommentsDto, UpdateTopicDocumentCommentDto, UserIdPaginatedDto } from './dto';
+import { User } from '../auth/entities/user.entity';
 
 
 @Controller('topic-document-comments')
@@ -11,9 +12,12 @@ export class TopicDocumentCommentsController {
   constructor(private readonly topicDocumentCommentsService: TopicDocumentCommentsService) {}
 
   @Post()
-  @Auth(ValidRoles.asesor)
-  create(@Body() createTopicDocumentCommentDto: CreateTopicDocumentCommentDto) {
-    return this.topicDocumentCommentsService.create(createTopicDocumentCommentDto);
+  @Auth(ValidRoles.asesor, ValidRoles.revisor)
+  create(
+    @Body() createTopicDocumentCommentDto: CreateTopicDocumentCommentDto,
+    @GetUser() user: User
+  ) {
+    return this.topicDocumentCommentsService.create(createTopicDocumentCommentDto, user);
   }
 
   @Get('comments/:topicDocumentId')
@@ -23,6 +27,23 @@ export class TopicDocumentCommentsController {
     @Query() paginationDto:PaginationDto,
   ) {
     return this.topicDocumentCommentsService.findAllCommentsByTopicDocument(topicDocumentId, paginationDto);
+  }
+
+  @Get('users-that-commented/:topicDocumentId')
+  @Auth( ValidRoles.asesor, ValidRoles.student, ValidRoles.titular_materia )
+  findAllUsersThatCommented(
+    @Param('topicDocumentId', ParseUUIDPipe ) topicDocumentId: string,
+  ) {
+    return this.topicDocumentCommentsService.findAllUsersThatCommented(topicDocumentId);
+  }
+
+  @Get('comments-by-user/:topicDocumentId')
+  @Auth(ValidRoles.asesor, ValidRoles.student, ValidRoles.titular_materia)
+  findAllCommentsByUser(
+    @Param('topicDocumentId', ParseUUIDPipe ) topicDocumentId: string,
+    @Query() userIdPaginatedDto: UserIdPaginatedDto,
+  ) {
+    return this.topicDocumentCommentsService.findAllCommentsByUser(topicDocumentId, userIdPaginatedDto);
   }
 
   @Get(':id')

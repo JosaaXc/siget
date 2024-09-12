@@ -1,5 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, JoinColumn } from 'typeorm';
 import { TopicDocument } from 'src/files/entities/topic-document.entity';
+import { User } from '../../auth/entities/user.entity';
 
 @Entity({ name: 'topic_document_comments' })
 export class TopicDocumentComment {
@@ -16,5 +17,9 @@ export class TopicDocumentComment {
   @ManyToOne(() => TopicDocument, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'topicDocument' })
   topicDocument: TopicDocument;
+
+  @ManyToOne(() => User, user => user.id, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'madeBy' })
+  madeBy: User; 
 
 }
