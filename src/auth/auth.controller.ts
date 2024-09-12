@@ -1,6 +1,6 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { CreateUserDto, EmailToChangePasswordDto, LoginUserDto, ResetPasswordDto, UserWithRoleAndDegreeDto } from './dto';
+import { ChangePasswordDto, CreateUserDto, EmailToChangePasswordDto, LoginUserDto, ResetPasswordDto, UserWithRoleAndDegreeDto } from './dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { PaginationDto } from '../common/dtos/pagination.dto';
 import { Auth, GetUser } from './decorators';
@@ -35,6 +35,15 @@ export class AuthController {
     @Param('token') token: string
   ) {
     return await this.authService.resetPassword(token,resetPasswordDto);
+  }
+
+  @Patch('change-password')
+  @Auth()
+  async changePassword(
+    @Body() changePasswordDto: ChangePasswordDto,
+    @GetUser() user: User
+  ) {
+    return await this.authService.changePassword(changePasswordDto, user);
   }
 
   @Get('users')

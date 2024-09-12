@@ -13,6 +13,7 @@ import { DegreeProgram } from '../degree-programs/entities/degree-program.entity
 import { PaginationDto } from '../common/dtos/pagination.dto';
 import { EmailService } from '../email/email.service';
 import { UserInformation } from '../user-information/entities/user-information.entity';
+import { ChangePasswordDto } from './dto/change-password.dto';
 
 @Injectable()
 export class AuthService {
@@ -102,6 +103,16 @@ export class AuthService {
     }
 
   }
+
+  async changePassword( changePasswordDto: ChangePasswordDto, user: User ) {
+      const userLocated = await this.userRepository.findOneOrFail({ where: { id: user.id } });
+  
+      if( !bcrypt.compareSync(changePasswordDto.oldPassword, userLocated.password) )
+        throw new UnauthorizedException('La contraseña actual no coincide');
+  
+      await this.userRepository.update(user.id, { password: await bcrypt.hash(changePasswordDto.newPassword, 10) });
+      return { message: 'Password updated successfully' };
+    }
 
   private getJwtToken(payload: JwtPayload, options?: JwtSignOptions) {
     return this.jwtService.sign(payload, options);
