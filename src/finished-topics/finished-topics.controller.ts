@@ -10,8 +10,15 @@ export class FinishedTopicsController {
   constructor(private readonly finishedTopicsService: FinishedTopicsService) {}
 
   @Post('get-by-degree-program')
-  @Auth()
   create(
+    @Body() degreeProgramDto: DegreeProgramDto,
+    @Query() paginationDto: PaginationDto,
+  ) {
+    return this.finishedTopicsService.findByDegreeProgram( degreeProgramDto, paginationDto );
+  }
+
+  @Post('get-all-by-degree-program')
+  getAll(
     @Body() degreeProgramDto: DegreeProgramDto,
     @Query() paginationDto: PaginationDto,
   ) {
