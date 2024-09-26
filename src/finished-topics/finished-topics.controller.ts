@@ -17,14 +17,6 @@ export class FinishedTopicsController {
     return this.finishedTopicsService.findByDegreeProgram( degreeProgramDto, paginationDto );
   }
 
-  @Post('get-all-by-degree-program')
-  getAll(
-    @Body() degreeProgramDto: DegreeProgramDto,
-    @Query() paginationDto: PaginationDto,
-  ) {
-    return this.finishedTopicsService.findByDegreeProgram( degreeProgramDto, paginationDto );
-  }
-
   @Get(':id')
   findOne(@Param('id', ParseUUIDPipe ) id: string) {
     return this.finishedTopicsService.findOne(id);

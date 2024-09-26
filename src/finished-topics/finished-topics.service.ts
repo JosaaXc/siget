@@ -12,7 +12,7 @@ export class FinishedTopicsService {
 
   constructor(
     @InjectRepository(FinishedTopic)
-    private finishedTopicRepository: Repository<FinishedTopic>,
+    private readonly finishedTopicRepository: Repository<FinishedTopic>,
     @InjectRepository(UserInformation)
     private readonly userInformationRepository: Repository<UserInformation>,
   ) {}
@@ -27,7 +27,7 @@ export class FinishedTopicsService {
         .leftJoinAndSelect('finishedTopic.acceptedBy', 'acceptedBy')
         .leftJoinAndSelect('finishedTopic.degreeProgram', 'degreeProgram')
         .leftJoinAndSelect('finishedTopic.graduationOption', 'graduationOption')
-        .where('finishedTopic.degreeProgramId IN (:...degree)', { degree })
+        .where('finishedTopic.degreeProgram IN (:...degree)', { degree })
         .orderBy('finishedTopic.createdAt', 'DESC')
         .skip(offset)
         .take(limit)
