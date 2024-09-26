@@ -43,7 +43,8 @@ export class TopicDocumentCommentsService {
         .getRawMany();
   
       const userInformationPromises = userIds.map(async (user) => {
-        return await this.getUserInformation(user.user_id);
+        const userInfo = await this.getUserInformation(user.user_id);
+        return { ...userInfo, id: user.user_id }; // Incluir el ID del usuario
       });
   
       const usersInformation = await Promise.all(userInformationPromises);
