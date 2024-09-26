@@ -190,18 +190,11 @@ export class AcceptedTopicsService {
   }
 
   async finishTopic(id: string) {
-    const acceptedTopic = await this.findOne(id);
+    const acceptedTopic: AcceptedTopic = await this.findOne(id);
     const finishedTopic = this.finishedTopicRepository.create({
+      ...acceptedTopic,
       id: acceptedTopic.id,
-      title: acceptedTopic.title,
-      description: acceptedTopic.description,
-      degreeProgram: acceptedTopic.degreeProgram,
-      graduationOption: acceptedTopic.graduationOption,
-      proposedByRole: acceptedTopic.proposedByRole,
-      acceptedBy: acceptedTopic.acceptedBy,
-      collaborator: acceptedTopic.collaborator,
-      requestedBy: acceptedTopic.requestedBy
-    });
+  });
     await this.finishedTopicRepository.save(finishedTopic);
     await this.remove(id);
     return {
