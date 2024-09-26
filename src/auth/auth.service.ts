@@ -105,14 +105,16 @@ export class AuthService {
   }
 
   async changePassword( changePasswordDto: ChangePasswordDto, user: User ) {
+    const { oldPassword, newPassword } = changePasswordDto;
       const userLocated = await this.userRepository.findOneOrFail({ where: { id: user.id } });
   
-      if( !bcrypt.compareSync(changePasswordDto.oldPassword, userLocated.password) )
+      if( !bcrypt.compareSync( oldPassword , userLocated.password ) )
         throw new UnauthorizedException('La contraseña actual no coincide');
-  
-      await this.userRepository.update(user.id, { password: await bcrypt.hash(changePasswordDto.newPassword, 10) });
+      
+      const hashedPassword = await bcrypt.hash(newPassword, 10);
+      await this.userRepository.update(user.id, { password: hashedPassword });
       return { message: 'Password updated successfully' };
-    }
+  }
 
   private getJwtToken(payload: JwtPayload, options?: JwtSignOptions) {
     return this.jwtService.sign(payload, options);
