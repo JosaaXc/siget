@@ -190,15 +190,30 @@ export class AcceptedTopicsService {
   }
 
   async finishTopic(id: string) {
-    const acceptedTopic: AcceptedTopic = await this.findOne(id);
-    const finishedTopic = this.finishedTopicRepository.create({
-      ...acceptedTopic,
-      id: acceptedTopic.id,
-  });
-    await this.finishedTopicRepository.save(finishedTopic);
-    await this.remove(id);
-    return {
-      message: 'El tema se ha finalizado exitosamente'
+    try {
+      const acceptedTopic: AcceptedTopic = await this.findOne(id);
+  
+      const finishedTopic = this.finishedTopicRepository.create({
+        id: acceptedTopic.id,
+        title: acceptedTopic.title,
+        description: acceptedTopic.description,
+        degreeProgram: acceptedTopic.degreeProgram,
+        graduationOption: acceptedTopic.graduationOption,
+        requestedBy: acceptedTopic.requestedBy,
+        collaborator: acceptedTopic.collaborator,
+        proposedByRole: acceptedTopic.proposedByRole,
+        acceptedBy: acceptedTopic.acceptedBy,
+        finishedAt: new Date(),
+      });
+  
+      await this.finishedTopicRepository.save(finishedTopic);
+      await this.remove(id);
+  
+      return {
+        message: 'El tema se ha finalizado exitosamente'
+      };
+    } catch (error) {
+      handleDBError(error);
     }
   }
 }
