@@ -1,10 +1,10 @@
-import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import { PaginationDto } from '../common/dtos/pagination.dto';
 import { User } from '../auth/entities/user.entity';
 import { handleDBError } from '../common/errors/handleDBError.errors';
-import { InjectRepository } from '@nestjs/typeorm';
 import { AcceptedTopic } from './entities/accepted-topic.entity';
-import { Repository } from 'typeorm';
 import { UserInformation } from '../user-information/entities/user-information.entity';
 import { ValidRoles } from '../auth/interfaces';
 import { DegreeProgramDto } from './dto/degree-program.dto';
@@ -193,7 +193,7 @@ export class AcceptedTopicsService {
     try {
       const acceptedTopic: AcceptedTopic = await this.findOne(id);
   
-      const finishedTopic = this.finishedTopicRepository.create({
+      const finishedTopic: FinishedTopic = this.finishedTopicRepository.create({
         id: acceptedTopic.id,
         title: acceptedTopic.title,
         description: acceptedTopic.description,
@@ -203,7 +203,6 @@ export class AcceptedTopicsService {
         collaborator: acceptedTopic.collaborator,
         proposedByRole: acceptedTopic.proposedByRole,
         acceptedBy: acceptedTopic.acceptedBy,
-        finishedAt: new Date(),
       });
   
       await this.finishedTopicRepository.save(finishedTopic);
