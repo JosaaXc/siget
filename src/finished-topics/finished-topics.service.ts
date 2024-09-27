@@ -19,7 +19,7 @@ export class FinishedTopicsService {
 
 
   async findByDegreeProgram({ degree }: DegreeProgramDto, paginationDto: PaginationDto) {
-    const { limit = 10 , offset = 0 } = paginationDto;
+    const { limit = 10, offset = 0 } = paginationDto;
     try {
       const finishedTopics = await this.finishedTopicRepository.createQueryBuilder('finishedTopic')
         .leftJoinAndSelect('finishedTopic.requestedBy', 'requestedBy')
@@ -27,8 +27,8 @@ export class FinishedTopicsService {
         .leftJoinAndSelect('finishedTopic.acceptedBy', 'acceptedBy')
         .leftJoinAndSelect('finishedTopic.degreeProgram', 'degreeProgram')
         .leftJoinAndSelect('finishedTopic.graduationOption', 'graduationOption')
-        .where('finishedTopic.degreeProgram IN (:...degree)', { degree })
-        .orderBy('finishedTopic.createdAt', 'DESC')
+        .where('finishedTopic.degreeProgramId IN (:...degree)', { degree })
+        .orderBy('finishedTopic.finishedAt', 'DESC')
         .skip(offset)
         .take(limit)
         .getMany();

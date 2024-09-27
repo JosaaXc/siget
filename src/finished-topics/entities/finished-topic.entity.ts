@@ -18,7 +18,6 @@ export class FinishedTopic {
     description: string;
 
     @ManyToOne(() => DegreeProgram, { eager: true, onDelete: 'CASCADE' })
-    @JoinColumn({ name: 'degreeProgram' })
     degreeProgram: DegreeProgram;
 
     @ManyToOne(() => GraduationOption, { eager: true, onDelete: 'CASCADE' })
