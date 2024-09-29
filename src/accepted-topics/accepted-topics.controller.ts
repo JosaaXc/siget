@@ -28,6 +28,14 @@ export class AcceptedTopicsController {
     return this.acceptedTopicsService.findByDegreeProgram( degreeProgramDto );
   }
 
+  @Post('get-finished-topics')
+  @Auth()
+  getFinishedTopics(
+    @Body() degreeProgramDto: DegreeProgramDto
+  ) {
+    return this.acceptedTopicsService.getFinishedTopics( degreeProgramDto );
+  }
+
   // get all users with role student that have not been accepted
   @Post('students')
   @Auth(ValidRoles.student)

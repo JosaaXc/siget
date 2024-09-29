@@ -66,6 +66,27 @@ export class AcceptedTopicsService {
       handleDBError(error);
     }
   }
+
+  async getFinishedTopics({ degree }: DegreeProgramDto) {
+    try {
+      const acceptedTopics = await this.acceptedTopicRepository.createQueryBuilder('acceptedTopic')
+        .leftJoinAndSelect('acceptedTopic.requestedBy', 'requestedBy')
+        .leftJoinAndSelect('acceptedTopic.collaborator', 'collaborator')
+        .leftJoinAndSelect('acceptedTopic.acceptedBy', 'acceptedBy')
+        .leftJoinAndSelect('acceptedTopic.degreeProgram', 'degreeProgram')
+        .leftJoinAndSelect('acceptedTopic.graduationOption', 'graduationOption')
+        .where('acceptedTopic.degreeProgramId IN (:...degree)', { degree })
+        .andWhere('acceptedTopic.status = :status', { status: TopicStatus.FINISHED })
+        .getMany();
+  
+      const acceptedTopicsWithUserInformation = await this.addUserInformationToTopics(acceptedTopics);
+  
+      return acceptedTopicsWithUserInformation;
+  
+    } catch (error) {
+      handleDBError(error);
+    }
+  }
   
   async findStudents(user: User, paginationDto: PaginationDto, degreeProgramDto: DegreeProgramDto) {
     const { limit = 15, offset = 0 } = paginationDto; 
@@ -204,4 +225,5 @@ export class AcceptedTopicsService {
       handleDBError(error);
     }
   }
+
 }
