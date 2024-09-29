@@ -4,12 +4,11 @@ import { Repository } from 'typeorm';
 import { PaginationDto } from '../common/dtos/pagination.dto';
 import { User } from '../auth/entities/user.entity';
 import { handleDBError } from '../common/errors/handleDBError.errors';
-import { AcceptedTopic } from './entities/accepted-topic.entity';
+import { AcceptedTopic, TopicStatus } from './entities/accepted-topic.entity';
 import { UserInformation } from '../user-information/entities/user-information.entity';
 import { ValidRoles } from '../auth/interfaces';
 import { DegreeProgramDto } from './dto/degree-program.dto';
 import { UpdateAcceptedTopicDto } from './dto/update-accepted-topic.dto';
-import { FinishedTopic } from '../finished-topics/entities/finished-topic.entity';
 
 @Injectable()
 export class AcceptedTopicsService {
@@ -21,9 +20,6 @@ export class AcceptedTopicsService {
     private readonly userInformationRepository: Repository<UserInformation>,
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
-    @InjectRepository(FinishedTopic)
-    private finishedTopicRepository: Repository<FinishedTopic>,
-
   ) {}
 
   async findAll({ limit = 10, offset = 0 }: PaginationDto, { id }: User) {
@@ -59,6 +55,7 @@ export class AcceptedTopicsService {
         .leftJoinAndSelect('acceptedTopic.degreeProgram', 'degreeProgram')
         .leftJoinAndSelect('acceptedTopic.graduationOption', 'graduationOption')
         .where('acceptedTopic.degreeProgramId IN (:...degree)', { degree })
+        .andWhere('acceptedTopic.status = :status', { status: TopicStatus.IN_PROGRESS })
         .getMany();
   
       const acceptedTopicsWithUserInformation = await this.addUserInformationToTopics(acceptedTopics);
@@ -89,6 +86,7 @@ export class AcceptedTopicsService {
         .leftJoin('acceptedTopic.requestedBy', 'requestedBy')
         .leftJoin('acceptedTopic.collaborator', 'collaborator')
         .leftJoin('acceptedTopic.acceptedBy', 'acceptedBy')
+        .where('acceptedTopic.status = :status', { status: TopicStatus.IN_PROGRESS })
         .getMany();
   
       const students = this.filterStudentsNotInAcceptedTopics(studentsIds, acceptedTopicIds);
@@ -110,6 +108,7 @@ export class AcceptedTopicsService {
         .leftJoinAndSelect('acceptedTopic.collaborator', 'collaborator')
         .leftJoinAndSelect('acceptedTopic.acceptedBy', 'acceptedBy')
         .leftJoinAndSelect('acceptedTopic.graduationOption', 'graduationOption')
+        .leftJoinAndSelect('acceptedTopic.degreeProgram', 'degreeProgram')
         .getOne();
   
       if (!acceptedTopic) throw new NotFoundException('Accepted Topic not found');
@@ -191,26 +190,16 @@ export class AcceptedTopicsService {
 
   async finishTopic(id: string) {
     try {
+
       const acceptedTopic: AcceptedTopic = await this.findOne(id);
-  
-      const finishedTopic: FinishedTopic = this.finishedTopicRepository.create({
-        id: acceptedTopic.id,
-        title: acceptedTopic.title,
-        description: acceptedTopic.description,
-        degreeProgram: acceptedTopic.degreeProgram,
-        graduationOption: acceptedTopic.graduationOption,
-        requestedBy: acceptedTopic.requestedBy,
-        collaborator: acceptedTopic.collaborator,
-        proposedByRole: acceptedTopic.proposedByRole,
-        acceptedBy: acceptedTopic.acceptedBy,
-      });
-  
-      await this.finishedTopicRepository.save(finishedTopic);
-      await this.remove(id);
-  
+      acceptedTopic.status = TopicStatus.FINISHED;
+      acceptedTopic.finishedAt = new Date();
+      await this.acceptedTopicRepository.save(acceptedTopic);
+
       return {
         message: 'El tema se ha finalizado exitosamente'
       };
+
     } catch (error) {
       handleDBError(error);
     }

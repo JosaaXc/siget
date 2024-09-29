@@ -4,6 +4,11 @@ import { User } from "../../auth/entities/user.entity";
 import { ProposedByRole } from "../../common/interfaces/proposed-by-role.interface";
 import { GraduationOption } from "../../graduation-options/entities/graduation-option.entity";
 
+export enum TopicStatus {
+    IN_PROGRESS = 'IN_PROGRESS',
+    FINISHED = 'FINISHED'
+}
+
 @Entity()
 @Unique(['requestedBy', 'acceptedBy'])
 export class AcceptedTopic {
@@ -42,5 +47,15 @@ export class AcceptedTopic {
     @ManyToOne(() => User, { eager: true, onDelete: 'CASCADE'})
     @JoinColumn({ name: 'acceptedBy' })
     acceptedBy: User;
+
+    @Column({
+        type: 'enum',
+        enum: TopicStatus,
+        default: TopicStatus.IN_PROGRESS
+    })
+    status: TopicStatus;
+
+    @Column({ type: 'timestamp', nullable: true, default: null })
+    finishedAt: Date;
     
 }
