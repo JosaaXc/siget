@@ -26,9 +26,18 @@ export class FilesService {
 
   }
 
-  async getStudentTopicDocuments( user: User ){
+  async getStudentTopicDocuments(user: User) {
     try {
-      return await this.topicDocumentRepository.find({ where: { uploadedBy: user } });
+      const documents = await this.topicDocumentRepository.find({ where: { uploadedBy: user } });
+      return documents.map(({ id, acceptedTopic, url, uploadedBy, uploadedAt, updatedAt, chapters }) => ({
+        id,
+        acceptedTopicId: acceptedTopic.id,
+        url,
+        uploadedBy: uploadedBy.id,
+        uploadedAt,
+        updatedAt,
+        chapters,
+      }));
     } catch (error) {
       handleDBError(error);
     }
@@ -36,7 +45,15 @@ export class FilesService {
 
   async getTopicDocumentByAcceptedTopic( id: string ){
     try {
-      return await this.topicDocumentRepository.findOneOrFail({ where: { acceptedTopic: { id } } });
+      const document = await this.topicDocumentRepository.findOneOrFail({ where: { acceptedTopic: { id } } });
+      return { 
+        id: document.id, 
+        url: document.url, 
+        updatedAt: document.updatedAt,
+        uploadedAt: document.uploadedAt,
+        acceptedTopicId: document.acceptedTopic.id,
+        uploadedBy: document.uploadedBy.id,
+      }
     } catch (error) {
       handleDBError(error);
     }
