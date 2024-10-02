@@ -15,6 +15,7 @@ import { ScheduleModulee } from './schedule/schedule.module';
 import { AdvisorySessionsModule } from './advisory-sessions/advisory-sessions.module';
 import { SeedModule } from './seed/seed.module';
 import { TopicReviewerModule } from './topic-reviewer/topic-reviewer.module';
+import { AbandonedTopicModule } from './abandoned-topic/abandoned-topic.module';
 
 @Module({
   imports: [
@@ -46,6 +47,7 @@ import { TopicReviewerModule } from './topic-reviewer/topic-reviewer.module';
     AdvisorySessionsModule,
     SeedModule,
     TopicReviewerModule,
+    AbandonedTopicModule,
   ],
 })
 export class AppModule {}

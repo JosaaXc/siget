@@ -6,7 +6,7 @@ import { GraduationOption } from "../../graduation-options/entities/graduation-o
 
 export enum TopicStatus {
     IN_PROGRESS = 'IN_PROGRESS',
-    FINISHED = 'FINISHED'
+    FINISHED = 'FINISHED',
 }
 
 @Entity()

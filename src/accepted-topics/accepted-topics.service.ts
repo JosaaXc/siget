@@ -9,6 +9,7 @@ import { UserInformation } from '../user-information/entities/user-information.e
 import { ValidRoles } from '../auth/interfaces';
 import { DegreeProgramDto } from './dto/degree-program.dto';
 import { UpdateAcceptedTopicDto } from './dto/update-accepted-topic.dto';
+import { AbandonedTopic } from '../abandoned-topic/entities/abandoned-topic.entity';
 
 @Injectable()
 export class AcceptedTopicsService {
@@ -20,6 +21,8 @@ export class AcceptedTopicsService {
     private readonly userInformationRepository: Repository<UserInformation>,
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
+    @InjectRepository(AbandonedTopic)
+    private readonly abandonedTopicRepository: Repository<AbandonedTopic>,
   ) {}
 
   async findAll({ limit = 10, offset = 0 }: PaginationDto, { id }: User) {
@@ -220,6 +223,68 @@ export class AcceptedTopicsService {
       return {
         message: 'El tema se ha finalizado exitosamente'
       };
+
+    } catch (error) {
+      handleDBError(error);
+    }
+  }
+ 
+  async abandonTopic(user: User, id: string) {
+    try {
+      const topic: AcceptedTopic = await this.findOne(id);
+      
+      if (topic.collaborator && topic.collaborator.id === user.id) {
+        // Si el colaborador abandona, simplemente se borra
+        topic.collaborator = null;
+        await this.acceptedTopicRepository.save(topic);
+        return { message: 'El colaborador ha abandonado el tema exitosamente' };
+      }
+  
+      if (topic.acceptedBy.id === user.id) {
+        if (topic.collaborator) {
+          // Si el estudiante que aceptó abandona y hay un colaborador, el colaborador se convierte en el estudiante aceptado
+          topic.acceptedBy = topic.collaborator;
+          topic.collaborator = null;
+          await this.acceptedTopicRepository.save(topic);
+          return { message: 'Usted abandonó el tema' };
+        } else {
+          // Si no hay colaborador, se guarda el tema en la tabla de temas abandonados
+          const abandonedTopic = this.abandonedTopicRepository.create({
+            id: topic.id,
+            title: topic.title,
+            description: topic.description,
+            degreeProgram: topic.degreeProgram,
+            graduationOption: topic.graduationOption,
+            acceptedBy: topic.requestedBy,
+          });
+          await this.abandonedTopicRepository.save(abandonedTopic);
+          await this.acceptedTopicRepository.remove(topic);
+          return { message: 'El tema ha sido abandonado y guardado en temas abandonados' };
+        }
+      }
+  
+      if (topic.requestedBy.id === user.id) {
+        if (topic.collaborator) {
+          // Si el estudiante solicitante abandona y hay un colaborador, el colaborador se convierte en el estudiante solicitante
+          topic.requestedBy = topic.collaborator;
+          topic.collaborator = null;
+          await this.acceptedTopicRepository.save(topic);
+          return { message: 'El colaborador ha sido promovido a estudiante solicitante, usted abandonó el tema' };
+        } else {
+          // Si no hay colaborador, se guarda el tema en la tabla de temas abandonados
+          const abandonedTopic = this.abandonedTopicRepository.create({
+            id: topic.id,
+            title: topic.title,
+            description: topic.description,
+            degreeProgram: topic.degreeProgram,
+            graduationOption: topic.graduationOption,
+            acceptedBy: topic.acceptedBy,
+          });
+          await this.abandonedTopicRepository.save(abandonedTopic);
+          await this.acceptedTopicRepository.remove(topic);
+          return { message: 'El tema ha sido abandonado y guardado en temas abandonados' };
+        }
+      }
 
     } catch (error) {
       handleDBError(error);

@@ -80,4 +80,13 @@ export class AcceptedTopicsController {
     return this.acceptedTopicsService.remove(id);
   }
 
+  @Delete('abandon/:id')
+  @Auth(ValidRoles.student)
+  abandonTopic(
+    @GetUser() user: User,
+    @Param('id', ParseUUIDPipe) id: string
+  ) {
+    return this.acceptedTopicsService.abandonTopic(user, id);
+  }
+
 }
