@@ -5,6 +5,7 @@ import { AbandonedTopic } from './entities/abandoned-topic.entity';
 import { DegreeProgramDto } from '../accepted-topics/dto/degree-program.dto';
 import { PaginationDto } from '../common/dtos/pagination.dto';
 import { UserInformation } from '../user-information/entities/user-information.entity';
+import { User } from '../auth/entities/user.entity';
 
 @Injectable()
 export class AbandonedTopicService {
@@ -37,6 +38,24 @@ export class AbandonedTopicService {
             };
         }));
         return topicsWithUserInfo;
+    }
+
+    async findByAssessor({ limit = 10, offset = 0 }: PaginationDto, user: User) {
+        const abandonedTopics = await this.abandonedTopicRepository.createQueryBuilder('abandonedTopic')
+          .leftJoinAndSelect('abandonedTopic.acceptedBy', 'acceptedBy')
+          .leftJoinAndSelect('abandonedTopic.degreeProgram', 'degreeProgram')
+          .leftJoinAndSelect('abandonedTopic.graduationOption', 'graduationOption')
+          .where('abandonedTopic.acceptedById = :id', { id: user.id })
+          .skip(offset)
+          .take(limit)
+          .getMany();
+      
+        return abandonedTopics;
+    }
+
+    async delete(id: string) {
+        await this.abandonedTopicRepository.delete(id);
+        return { message: 'Abandoned topic deleted successfully' };
     }
 
     private async getUserInformation(userId: string) {
