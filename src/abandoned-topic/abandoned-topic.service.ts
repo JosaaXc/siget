@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { AbandonedTopic } from './entities/abandoned-topic.entity';
@@ -6,6 +6,9 @@ import { DegreeProgramDto } from '../accepted-topics/dto/degree-program.dto';
 import { PaginationDto } from '../common/dtos/pagination.dto';
 import { UserInformation } from '../user-information/entities/user-information.entity';
 import { User } from '../auth/entities/user.entity';
+
+import { existsSync, unlinkSync } from 'fs';
+import { join } from 'path';
 
 @Injectable()
 export class AbandonedTopicService {
@@ -57,6 +60,12 @@ export class AbandonedTopicService {
         const result = await this.abandonedTopicRepository.delete(id);
         if( result.affected === 0 ) 
             throw new NotFoundException(`Abandoned topic not found`);
+        const path = join(__dirname, '../../static/documents', id);
+        try {
+            unlinkSync(path);
+        } catch (error) {
+            throw new BadRequestException('Error deleting document');
+        }
         return { message: 'Abandoned topic deleted successfully' };
     }
 
