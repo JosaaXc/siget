@@ -8,7 +8,7 @@ export class TopicDocument{
   @PrimaryGeneratedColumn('uuid')
   id: string; 
 
-  @OneToOne(() => AcceptedTopic, { onDelete: 'CASCADE', nullable: false, eager: true })
+  @OneToOne(() => AcceptedTopic, { onDelete: 'CASCADE', nullable: false })
   @JoinColumn({ name: 'acceptedTopic'})
   acceptedTopic: AcceptedTopic
 
