@@ -57,14 +57,12 @@ export class AbandonedTopicService {
     }
 
     async delete(id: string) {
-        const result = await this.abandonedTopicRepository.delete(id);
-        if( result.affected === 0 ) 
-            throw new NotFoundException(`Abandoned topic not found`);
         const path = join(__dirname, '../../static/documents', id);
         try {
             unlinkSync(path);
+            await this.abandonedTopicRepository.delete(id);
         } catch (error) {
-            throw new BadRequestException('Error deleting document');
+            throw new BadRequestException('Error deleting document: ' + error.message);
         }
         return { message: 'Abandoned topic deleted successfully' };
     }
