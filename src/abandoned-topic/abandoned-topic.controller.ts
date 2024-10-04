@@ -29,10 +29,10 @@ export class AbandonedTopicController {
     return this.abandonedTopicService.findByAssessor(paginationDto, user);
   }
 
-  @Delete('delete')
+  @Delete()
   @Auth(ValidRoles.asesor)
   delete(@Query('id') id: string) {
     return this.abandonedTopicService.delete(id);
   }
-  
+
 }
