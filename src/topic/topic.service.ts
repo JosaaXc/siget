@@ -148,8 +148,10 @@ export class TopicService {
       
       const topicUpdated = await this.topicRepository.findOneOrFail({ where: { id } });
       delete topicUpdated.proposedBy;
-      delete topicUpdated.collaborator.email;
-      delete topicUpdated.collaborator.roles;
+      if (topicUpdated.collaborator) {
+        delete topicUpdated.collaborator.email;
+        delete topicUpdated.collaborator.roles;
+      }
       return topicUpdated;
   
     } catch (error) {
