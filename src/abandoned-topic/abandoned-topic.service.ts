@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { AbandonedTopic } from './entities/abandoned-topic.entity';
@@ -54,7 +54,9 @@ export class AbandonedTopicService {
     }
 
     async delete(id: string) {
-        await this.abandonedTopicRepository.delete(id);
+        const result = await this.abandonedTopicRepository.delete(id);
+        if( result.affected === 0 ) 
+            throw new NotFoundException(`Abandoned topic not found`);
         return { message: 'Abandoned topic deleted successfully' };
     }
 

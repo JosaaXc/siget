@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Post, Query } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseUUIDPipe, Post, Query } from '@nestjs/common';
 import { AbandonedTopicService } from './abandoned-topic.service';
 import { Auth, GetUser } from '../auth/decorators';
 import { ValidRoles } from '../auth/interfaces';
@@ -29,9 +29,11 @@ export class AbandonedTopicController {
     return this.abandonedTopicService.findByAssessor(paginationDto, user);
   }
 
-  @Delete()
+  @Delete(':id')
   @Auth(ValidRoles.asesor)
-  delete(@Query('id') id: string) {
+  delete(
+    @Param('id', ParseUUIDPipe) id: string
+  ) {
     return this.abandonedTopicService.delete(id);
   }
 
