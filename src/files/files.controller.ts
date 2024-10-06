@@ -74,7 +74,13 @@ export class FilesController {
     limits: { fileSize: 1024 * 1024 * 10 }, // 10mb
     storage: diskStorage({
       destination: './static/documents/',
-      filename: updateFileNamer // Aquí se usa el ID del topic document
+      filename: (req, file, cb) => {
+        const topicDocumentId = req.query['topic-document'];
+        if (!topicDocumentId) {
+          return cb(new BadRequestException('topicDocumentId is required'), null);
+        }
+        cb(null, file.originalname);
+      }
     })
   }))
   async updateStudentFile(
@@ -83,7 +89,7 @@ export class FilesController {
   ) {
     if (!file) throw new BadRequestException('Make sure the file is a document(doc, docx, pdf)');
     const secureUrl = await this.filesService.uploadFile(file, this.hostApi);
-    return this.filesService.updateTopicDocument(topicDocument, secureUrl);
+    return this.filesService.updateTopicDocument(topicDocument, secureUrl, this.hostApi, file.filename);
   }
 
   @Patch('complete-chapter/:id')

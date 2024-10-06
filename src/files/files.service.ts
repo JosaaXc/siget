@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm/repository/Repository';
-import { existsSync } from 'fs';
+import { existsSync, renameSync, unlinkSync } from 'fs';
 import { join } from 'path';
 
 import { TopicDocument } from './entities/topic-document.entity';
@@ -24,6 +24,14 @@ export class FilesService {
 
     return path;
 
+  }
+
+  async findTopicDocumentById( id: string ){
+    try {
+      return await this.topicDocumentRepository.findOneOrFail({ where: { id } });
+    } catch (error) {
+      handleDBError(error);
+    }
   }
 
   async getStudentTopicDocuments(user: User) {
@@ -63,16 +71,31 @@ export class FilesService {
     }
   }
 
-  async updateTopicDocument( topicDocument: string , secureUrl: string){
+  async updateTopicDocument(topicDocumentId: string, secureUrl: string, hostApi: string, originalFilename: string) {
+    const topicDocument = await this.findTopicDocumentById(topicDocumentId);
+  
     try {
+      const urlParts = topicDocument.url.split('/');
+      const filenameWithExtension = urlParts[urlParts.length - 1];
+      const acceptedTopicId = filenameWithExtension.split('.')[0];
+      const extension = secureUrl.split('.').pop();
+      const newFilename = `${acceptedTopicId}.${extension}`;
+      
+      const newSecureUrl = `${hostApi}/files/document/${newFilename}`;
+  
+      // Renombrar el archivo en el sistema de archivos
+      const oldPath = join(__dirname, '../../static/documents', originalFilename);
+      const newPath = join(__dirname, '../../static/documents', newFilename);
+      renameSync(oldPath, newPath);
+  
       await this.topicDocumentRepository.update( 
-        topicDocument, 
+        topicDocumentId, 
         { 
-          url: secureUrl,
+          url: newSecureUrl,
           updatedAt: new Date()
         }
       );
-      return await this.topicDocumentRepository.findOneOrFail({ where: { id: topicDocument }});
+      return await this.topicDocumentRepository.findOneOrFail({ where: { id: topicDocumentId }});
     } catch (error) {
       handleDBError(error);
     }
