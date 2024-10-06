@@ -57,7 +57,7 @@ export class AbandonedTopicService {
     }
 
     async delete(id: string) {
-        const path = join(__dirname, '../../static/documents', id);
+        const path = join(__dirname, '../../static/documents', id + '.pdf',);
         try {
             unlinkSync(path);
             await this.abandonedTopicRepository.delete(id);
