@@ -16,6 +16,8 @@ import { AdvisorySessionsModule } from './advisory-sessions/advisory-sessions.mo
 import { SeedModule } from './seed/seed.module';
 import { TopicReviewerModule } from './topic-reviewer/topic-reviewer.module';
 import { AbandonedTopicModule } from './abandoned-topic/abandoned-topic.module';
+import { CacheModule } from '@nestjs/cache-manager';
+import { redisStore } from 'cache-manager-redis-yet';
 
 @Module({
   imports: [
@@ -48,6 +50,18 @@ import { AbandonedTopicModule } from './abandoned-topic/abandoned-topic.module';
     SeedModule,
     TopicReviewerModule,
     AbandonedTopicModule,
+    CacheModule.registerAsync({
+      isGlobal: true,
+      useFactory: async () => ({
+        ttl: 5 * 1000,
+        store: await redisStore({
+          socket: {
+            host: 'localhost',
+            port: 6379,
+          }
+        })
+      })
+    }),
   ],
 })
 export class AppModule {}

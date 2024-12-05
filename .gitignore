@@ -5,8 +5,8 @@
 
 .env 
 postgres1/
-
-src/static/documents/*
+/static/documents/*
+!/static/documents/.gitkeep
 
 # Logs
 logs

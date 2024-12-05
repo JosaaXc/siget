@@ -12,3 +12,14 @@ services:
     container_name: ${CONTAINER_NAME}
     volumes:
       - ${POSTGRES_VOLUME}:/var/lib/postgresql/data
+  redis:
+    image: redis:7
+    restart: always
+    ports:
+      - "6379:6379"
+    container_name: siget-redis
+    volumes:
+      - redis:/data
+
+volumes:
+  redis:

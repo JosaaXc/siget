@@ -1,6 +1,7 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, UseInterceptors } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { ChangePasswordDto, CreateUserDto, EmailToChangePasswordDto, LoginUserDto, ResetPasswordDto, UserWithRoleAndDegreeDto } from './dto';
+import { CacheInterceptor, CacheTTL } from '@nestjs/cache-manager';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { PaginationDto } from '../common/dtos/pagination.dto';
 import { Auth, GetUser } from './decorators';
@@ -8,6 +9,8 @@ import { User } from './entities/user.entity';
 import { ValidRoles } from './interfaces';
 
 @Controller('auth')
+@UseInterceptors(CacheInterceptor)
+@CacheTTL(5*1000)
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 

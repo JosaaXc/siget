@@ -28,6 +28,9 @@ export function handleDBError(error: any): never {
 
   if(error.code === '42883')
     throw new BadRequestException(error.detail);
+
+  if(error.code === '42601')
+    throw new BadRequestException(error.detail)
   
   console.log(error);
   throw new InternalServerErrorException('Something went wrong');

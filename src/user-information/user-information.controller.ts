@@ -1,12 +1,15 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, UseInterceptors } from '@nestjs/common';
 import { UserInformationService } from './user-information.service';
 import { CreateUserInformationDto } from './dto/create-user-information.dto';
 import { UpdateUserInformationDto } from './dto/update-user-information.dto';
-import { Auth, GetUser } from 'src/auth/decorators';
-import { User } from 'src/auth/entities/user.entity';
+import { Auth, GetUser } from '../auth/decorators';
+import { User } from '../auth/entities/user.entity';
+import { CacheInterceptor, CacheTTL } from '@nestjs/cache-manager';
 
 @Controller('user-information')
 @Auth()
+@UseInterceptors(CacheInterceptor)
+@CacheTTL(5*1000)
 export class UserInformationController {
   constructor(private readonly userInformationService: UserInformationService) {}
 
